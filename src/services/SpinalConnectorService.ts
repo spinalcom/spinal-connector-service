@@ -57,6 +57,7 @@ export class SpinalConnectorService {
 
         return new Promise((resolve) => {
             spinalConnection.load_or_make_dir(`${this.path}`, (directory) => {
+                console.log(this.name, this.path);
 
                 for (let index = 0; index < directory.length; index++) {
                     const element = directory[index];
@@ -68,9 +69,13 @@ export class SpinalConnectorService {
                     }
                 }
 
+                console.log("organ not found")
+
                 const model = new SpinalConnector(this.name, this.type, element);
-                waitModelReady().then(async () => {
-                    const file = new File(`${name}.conf`.toLowerCase(), model, undefined);
+                return waitModelReady().then(async () => {
+                    console.log("model ready");
+
+                    const file = new File(`${this.name}.conf`.toLowerCase(), model, undefined);
                     directory.push(file);
 
                     return resolve({ alreadyExist: false, node: model, instancePm2: await this.getPm2Instance() });

@@ -59,6 +59,7 @@ class SpinalConnectorService {
     createOrganConfigFile(spinalConnection, element) {
         return new Promise((resolve) => {
             spinalConnection.load_or_make_dir(`${this.path}`, (directory) => {
+                console.log(this.name, this.path);
                 for (let index = 0; index < directory.length; index++) {
                     const element = directory[index];
                     const elementName = element.name.get();
@@ -68,9 +69,11 @@ class SpinalConnectorService {
                         }));
                     }
                 }
+                console.log("organ not found");
                 const model = new models_1.SpinalConnector(this.name, this.type, element);
-                functions_1.waitModelReady().then(() => __awaiter(this, void 0, void 0, function* () {
-                    const file = new spinal_core_connectorjs_type_1.File(`${name}.conf`.toLowerCase(), model, undefined);
+                return functions_1.waitModelReady().then(() => __awaiter(this, void 0, void 0, function* () {
+                    console.log("model ready");
+                    const file = new spinal_core_connectorjs_type_1.File(`${this.name}.conf`.toLowerCase(), model, undefined);
                     directory.push(file);
                     return resolve({ alreadyExist: false, node: model, instancePm2: yield this.getPm2Instance() });
                 }));

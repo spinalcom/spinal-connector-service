@@ -34,6 +34,13 @@ export default class SpinalConnector<Type extends spinal.Model> extends SpinalNo
 
         this.info.id.set(guid(this.constructor.name));
     }
+
+    // public getElement(): Promise<Type> {
+    //     return new Promise((resolve, reject) => {
+    //         this.element.ptr.load(data => resolve(data));
+    //     });
+
+    // }
 }
 
 spinalCore.register_models([SpinalConnector]);

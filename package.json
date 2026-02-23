@@ -1,6 +1,6 @@
 {
 	"name": "spinal-connector-service",
-	"version": "2.0.1",
+	"version": "2.0.2",
 	"description": "",
 	"main": "dist/index.js",
 	"scripts": {

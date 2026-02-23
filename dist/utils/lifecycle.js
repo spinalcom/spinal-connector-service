@@ -13,7 +13,7 @@ exports.getPm2Instance = exports.createOrganConfigFile = exports.getOrganConfig 
 const models_1 = require("../models");
 const constants_1 = require("./constants");
 const spinal_core_connectorjs_1 = require("spinal-core-connectorjs");
-const pm2_1 = require("pm2");
+const pm2 = require("pm2");
 function getOrganConfig(spinalConnection, filePath) {
     return new Promise((resolve) => {
         const { folderPath, fileName } = getFileInfoByPath(filePath);
@@ -52,12 +52,16 @@ function createOrganConfigFile(spinalConnection, organInfo) {
 exports.createOrganConfigFile = createOrganConfigFile;
 function getPm2Instance(name) {
     return new Promise((resolve, reject) => {
-        (0, pm2_1.list)((err, apps) => {
-            if (err) {
+        pm2.connect((err) => {
+            if (err)
                 return resolve(undefined);
-            }
-            const instance = apps.find(app => app.name === name);
-            resolve(instance);
+            pm2.list((err, apps) => {
+                if (err) {
+                    return resolve(undefined);
+                }
+                const instance = apps.find(app => app.name === name);
+                resolve(instance);
+            });
         });
     });
 }

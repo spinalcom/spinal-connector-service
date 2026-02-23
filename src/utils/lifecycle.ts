@@ -46,13 +46,18 @@ export function createOrganConfigFile(spinalConnection: spinal.FileSystem, organ
 
 export function getPm2Instance(name: string): Promise<pm2.ProcessDescription | undefined> {
     return new Promise((resolve, reject) => {
-        pm2.list((err, apps) => {
-            if (err) {
-                return resolve(undefined);
-            }
-            const instance = apps.find(app => app.name === name);
-            resolve(instance);
-        })
+        pm2.connect((err) => {
+            if (err) return resolve(undefined);
+
+            pm2.list((err, apps) => {
+                if (err) {
+                    return resolve(undefined);
+                }
+                const instance = apps.find(app => app.name === name);
+                resolve(instance);
+            });
+        });
+
     });
 }
 

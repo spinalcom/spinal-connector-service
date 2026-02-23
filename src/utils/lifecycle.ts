@@ -3,7 +3,7 @@ import { IConnectorCreation, IConnectorInfo } from "../interfaces";
 import { SpinalOrganModel } from "../models";
 import { DEFAULT_ORGAN_TYPE, DEFAULT_PATH } from "./constants";
 import { File as SpinalFile } from "spinal-core-connectorjs";
-import { ProcessDescription, list as pm2ProcessList } from "pm2";
+import * as pm2 from "pm2";
 
 
 export function getOrganConfig(spinalConnection: spinal.FileSystem, filePath: string): Promise<SpinalOrganModel | null> {
@@ -44,15 +44,14 @@ export function createOrganConfigFile(spinalConnection: spinal.FileSystem, organ
 
 }
 
-export function getPm2Instance(name: string): Promise<ProcessDescription | undefined> {
+export function getPm2Instance(name: string): Promise<pm2.ProcessDescription | undefined> {
     return new Promise((resolve, reject) => {
-        pm2ProcessList((err, apps) => {
+        pm2.list((err, apps) => {
             if (err) {
                 return resolve(undefined);
             }
             const instance = apps.find(app => app.name === name);
             resolve(instance);
-
         })
     });
 }

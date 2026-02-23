@@ -22,4 +22,6 @@
  * <http://resources.spinalcom.com/licenses.pdf>.
  */
 
-export { SpinalConnectorService } from "./SpinalConnectorService"
+export * from "./SpinalConnectorService";
+export * from "./SpinalQueue";
+

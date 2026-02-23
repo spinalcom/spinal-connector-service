@@ -1,27 +1,4 @@
 "use strict";
-/*
- * Copyright 2021 SpinalCom - www.spinalcom.com
- *
- * This file is part of SpinalCore.
- *
- * Please read all of the following terms and conditions
- * of the Free Software license Agreement ("Agreement")
- * carefully.
- *
- * This Agreement is a legally binding contract between
- * the Licensee (as defined below) and SpinalCom that
- * sets forth the terms and conditions that govern your
- * use of the Program. By installing and/or using the
- * Program, you agree to abide by all the terms and
- * conditions stated or referenced herein.
- *
- * If you do not agree to abide by these terms and
- * conditions, do not demonstrate your acceptance and do
- * not install or use the Program.
- * You should have received a copy of the license along
- * with this file. If not, see
- * <http://resources.spinalcom.com/licenses.pdf>.
- */
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -33,65 +10,111 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.SpinalConnectorService = void 0;
-const spinal_core_connectorjs_type_1 = require("spinal-core-connectorjs_type");
+const pm2_1 = require("pm2");
 const constants_1 = require("../utils/constants");
-const functions_1 = require("../utils/functions");
-const models_1 = require("../models");
-const pm2 = require("pm2");
-/**
- * This class is a service of spinalcom connector it allows to manage a connector
- * @param  {string} connectorName - connector name
- * @param  {string} connectorType? - connector type
- * @param  {string} path? - connector path
- */
+const lifecycle_1 = require("../utils/lifecycle");
 class SpinalConnectorService {
-    constructor(name, type, path) {
-        this.name = name;
-        this.type = type || constants_1.DEFAULT_ORGAN_TYPE;
-        this.path = path || `${constants_1.DEFAULT_PATH}/${this.type}`;
+    constructor() {
+        this._organInfo = null;
+        this.organConfigModel = null;
+    }
+    static getInstance() {
+        if (!this._instance) {
+            this._instance = new SpinalConnectorService();
+        }
+        return this._instance;
     }
     /**
-     * This methods creates if not exists a connector config file.
-     * @param  {any} spinalConnection
-     * @param  {spinal.Model} element
-     * @returns Promise
+     * Initialize the SpinalConnectorService by loading or creating the organ configuration file and checking for an existing PM2 instance.
+     *
+     * @param {spinal.FileSystem} connect
+     * @param {IConnectorInfo} organInfo
+     * @return {*}  {Promise<IConnectorCreation>}
+     * @memberof SpinalConnectorService
      */
-    createOrganConfigFile(spinalConnection, element) {
-        return new Promise((resolve) => {
-            spinalConnection.load_or_make_dir(`${this.path}`, (directory) => {
-                console.log(this.name, this.path);
-                for (let index = 0; index < directory.length; index++) {
-                    const element = directory[index];
-                    const elementName = element.name.get();
-                    if (elementName.toLowerCase() === `${this.name}.conf`.toLowerCase()) {
-                        return element.load((organ) => __awaiter(this, void 0, void 0, function* () {
-                            resolve({ alreadyExist: true, node: organ, instancePm2: yield this.getPm2Instance() });
-                        }));
-                    }
-                }
-                console.log("organ not found");
-                const model = new models_1.SpinalConnector(this.name, this.type, element);
-                return functions_1.waitModelReady().then(() => __awaiter(this, void 0, void 0, function* () {
-                    console.log("model ready");
-                    const file = new spinal_core_connectorjs_type_1.File(`${this.name}.conf`.toLowerCase(), model, undefined);
-                    directory.push(file);
-                    return resolve({ alreadyExist: false, node: model, instancePm2: yield this.getPm2Instance() });
-                }));
-            });
+    initialize(connect, organInfo) {
+        return __awaiter(this, void 0, void 0, function* () {
+            this._organInfo = organInfo;
+            if (!organInfo.path)
+                organInfo.path = `${constants_1.DEFAULT_PATH}/${organInfo.name}.conf`;
+            let alreadyExists = true;
+            let organModel = yield (0, lifecycle_1.getOrganConfig)(connect, organInfo.path);
+            if (!organModel) {
+                alreadyExists = false;
+                organModel = yield (0, lifecycle_1.createOrganConfigFile)(connect, organInfo);
+            }
+            this.organConfigModel = organModel;
+            const instancePm2 = yield (0, lifecycle_1.getPm2Instance)(organInfo.name);
+            return { alreadyExists, node: organModel, instancePm2 };
         });
     }
+    /**
+     * Retrieves the current organ configuration model.
+     *
+     * @returns The {@link SpinalOrganModel} instance representing the organ configuration,
+     * or `null` if no configuration is available.
+     */
+    getOrganConfig() {
+        return this.organConfigModel;
+    }
+    /**
+     * Checks if the provided organ ID matches the ID of the current organ configuration model.
+     *
+     * @param organId - The ID of the organ to compare against the current organ configuration model.
+     * @returns `true` if the organ IDs are the same; otherwise, `false`.
+     */
+    checkIfItsSameOrgan(organId) {
+        if (!this.organConfigModel)
+            return false;
+        return this.organConfigModel.id.get() === organId;
+    }
+    /**
+     * Retrieves the PM2 process instance associated with the current organ information.
+     *
+     * @returns A promise that resolves to a `ProcessDescription` object if the organ information is available,
+     *          or `undefined` if it is not.
+     */
     getPm2Instance() {
-        return new Promise((resolve, reject) => {
-            pm2.list((err, apps) => {
-                if (err) {
-                    console.error(err);
-                    return reject(err);
-                }
-                const instance = apps.find(app => app.name === this.name);
-                resolve(instance);
+        var _a;
+        if (!this._organInfo)
+            return Promise.resolve(undefined);
+        return (0, lifecycle_1.getPm2Instance)(((_a = this._organInfo) === null || _a === void 0 ? void 0 : _a.name) || '');
+    }
+    /**
+     * Binds a listener to the `restart` property of the `organConfigModel`.
+     * When the `restart` property is triggered and set to true, this method
+     * initiates a restart of the PM2 instance`.
+     * Note: This method should be called after the `organConfigModel` has been initialized and assigned.
+     */
+    _bindRestart() {
+        var _a;
+        if (!this._organInfo)
+            return;
+        (_a = this.organConfigModel) === null || _a === void 0 ? void 0 : _a.restart.bind(() => __awaiter(this, void 0, void 0, function* () {
+            var _b;
+            const mustRestart = (_b = this.organConfigModel) === null || _b === void 0 ? void 0 : _b.restart.get();
+            if (mustRestart)
+                yield this._restartPm2Instance();
+        }));
+    }
+    _restartPm2Instance() {
+        return new Promise((resolve, reject) => __awaiter(this, void 0, void 0, function* () {
+            var _a;
+            if (!this._organInfo)
+                return;
+            const pm2Instance = yield (0, lifecycle_1.getPm2Instance)(((_a = this._organInfo) === null || _a === void 0 ? void 0 : _a.name) || '');
+            if (!pm2Instance)
+                return resolve(false);
+            const pm_id = pm2Instance.pm_id;
+            (0, pm2_1.restart)(pm_id, (err) => {
+                if (err)
+                    return resolve(false);
+                resolve(true);
             });
-        });
+        }));
     }
 }
 exports.SpinalConnectorService = SpinalConnectorService;
+SpinalConnectorService._instance = null;
+exports.default = SpinalConnectorService;
 //# sourceMappingURL=SpinalConnectorService.js.map

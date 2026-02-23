@@ -22,6 +22,8 @@
  * <http://resources.spinalcom.com/licenses.pdf>.
  */
 
-export { IConnectorCreation, IConnectorInfo } from "./interfaces";
-export { SpinalConnector, SpinalOrganConfigModel } from "./models";
-export { SpinalConnectorService } from "./services";
+export * from "./interfaces";
+export * from "./models";
+export * from "./services";
+export * from "./utils/constants";
+// export * from "./types";

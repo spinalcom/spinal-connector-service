@@ -23,7 +23,12 @@
  * <http://resources.spinalcom.com/licenses.pdf>.
  */
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.DEFAULT_PATH = exports.DEFAULT_ORGAN_TYPE = void 0;
+exports.QueueEvents = exports.DEFAULT_PATH = exports.DEFAULT_ORGAN_TYPE = void 0;
 exports.DEFAULT_ORGAN_TYPE = "SPINAL_ORGAN";
 exports.DEFAULT_PATH = "/etc/Organs";
+var QueueEvents;
+(function (QueueEvents) {
+    QueueEvents["FINISH"] = "finish";
+    QueueEvents["START"] = "start";
+})(QueueEvents = exports.QueueEvents || (exports.QueueEvents = {}));
 //# sourceMappingURL=constants.js.map

@@ -1,2 +1,2 @@
-export { SpinalConnector } from "./SpinalConnector";
-export { SpinalOrganConfigModel } from "./SpinalOrganConfigModel";
+export * from "./BasicModelToBind";
+export * from "./SpinalOrganModel";

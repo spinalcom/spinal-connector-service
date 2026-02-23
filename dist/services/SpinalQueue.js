@@ -1,0 +1,149 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.SpinalQueue = void 0;
+const lodash = require("lodash");
+const events_1 = require("events");
+const constants_1 = require("../utils/constants");
+/**
+ * A generic queue class with event emitting capabilities and progress tracking.
+ *
+ * @template T The type of items stored in the queue.
+ * @extends EventEmitter
+ *
+ * This class provides methods to add, remove, and process items in a queue,
+ * while emitting events for queue start and finish. It also tracks the percentage
+ * of processed items and supports debounced queue start.
+ *
+ * @property {number} percent - The percentage of processed items in the queue.
+ * @property {boolean} isProcessing - Indicates if the queue is currently being processed.
+ * @property {number} startDebounce - The debounce delay (in ms) before starting the queue.
+ *
+ */
+class SpinalQueue extends events_1.EventEmitter {
+    constructor(startDebounce = 3000) {
+        super();
+        this.processed = []; // List of processed items, used to calculate the percentage of completion
+        this.queueList = [];
+        this.percent = 0;
+        this.isProcessing = false;
+        this.startDebounce = 3000;
+        this.startDebounce = startDebounce;
+        this.debounceStart = lodash.debounce(this.start.bind(this), this.startDebounce);
+    }
+    start() {
+        if (!this.isProcessing) {
+            this.isProcessing = true;
+            this.emit(constants_1.QueueEvents.START);
+        }
+    }
+    /**
+     * Adds one or more items to the queue and triggers debounced start.
+     *
+     * @param {T | T[]} item - The item(s) to add to the queue.
+     * @returns {number} The new length of the queue.
+     */
+    addToQueue(item) {
+        if (!Array.isArray(item))
+            item = [item];
+        this.queueList.push(...item);
+        this.debounceStart();
+        return this.queueList.length;
+    }
+    /**
+     * Sets the queue with the provided array of items, clears the existing queue,
+     * recalculates the processing percentage, and initiates the debounced start process.
+     *
+     * @param queue - An array of items of type `T` to set as the new queue.
+     * @returns The length of the newly set queue.
+     */
+    setQueue(queue) {
+        this.clear();
+        this.queueList = queue;
+        this.recalculatePercent(undefined);
+        this.debounceStart();
+        return this.queueList.length;
+    }
+    /**
+     * Removes and returns the first item from the queue.
+     * Also recalculates the percent based on the dequeued item.
+     * If the queue becomes empty after the operation, triggers the finish process.
+     *
+     * @returns {T | undefined} The dequeued item, or `undefined` if the queue is empty.
+     */
+    dequeue() {
+        const item = this.queueList.shift();
+        this.recalculatePercent(item);
+        if (this.queueList.length === 0)
+            this.finish();
+        return item;
+    }
+    /**
+     * Removes and returns the last item from the queue.
+     * Recalculates the percent based on the popped item and
+     * triggers the finish logic if the queue becomes empty.
+     *
+     * @returns {T | undefined} The last item in the queue, or `undefined` if the queue is empty.
+     */
+    pop() {
+        const item = this.queueList.pop();
+        this.recalculatePercent(item);
+        if (this.queueList.length === 0)
+            this.finish();
+        return item;
+    }
+    /**
+     * Clears the queue by resetting the queue list, processed items, and percent completion.
+     * Also calls the `finish` method to finalize the clearing process.
+     */
+    clear() {
+        this.queueList = [];
+        this.processed = [];
+        this.percent = 0;
+        this.finish();
+    }
+    /**
+     * Returns a shallow copy of the current queue as an array.
+     *
+     * @returns {T[]} An array containing the items in the queue.
+     */
+    toArray() {
+        return [...this.queueList];
+    }
+    /**
+     * Checks whether the queue is empty.
+     *
+     * @returns {boolean} `true` if the queue contains no elements, otherwise `false`.
+     */
+    isEmpty() {
+        return this.queueList.length === 0;
+    }
+    getQueue() {
+        // deprecated, use toArray instead
+        console.warn("getQueue is deprecated, use toArray instead");
+        return this.toArray();
+    }
+    refresh() {
+        // deprecated, use clear instead
+        console.warn("refresh is deprecated, use clear instead");
+        this.clear();
+    }
+    finish() {
+        if (this.isProcessing) {
+            this.isProcessing = false;
+            this.emit(constants_1.QueueEvents.FINISH);
+        }
+    }
+    recalculatePercent(item) {
+        if (item)
+            this.processed.push(item);
+        const total = this.processed.length + this.queueList.length;
+        if (total === 0) {
+            this.percent = 0;
+            return;
+        }
+        this.percent = Math.floor((100 * this.processed.length) / total);
+    }
+}
+exports.SpinalQueue = SpinalQueue;
+exports.default = SpinalQueue;
+//# sourceMappingURL=SpinalQueue.js.map

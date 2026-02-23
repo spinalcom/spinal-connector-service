@@ -1,1 +1,2 @@
-export { SpinalConnectorService } from "./SpinalConnectorService";
+export * from "./SpinalConnectorService";
+export * from "./SpinalQueue";

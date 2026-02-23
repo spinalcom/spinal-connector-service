@@ -22,10 +22,11 @@
  * <http://resources.spinalcom.com/licenses.pdf>.
  */
 
-import { SpinalConnector } from '../models';
+import { SpinalOrganModel } from '../models';
+import { ProcessDescription } from "pm2";
 
 export interface IConnectorCreation {
-    alreadyExist: boolean;
-    node: SpinalConnector<any>;
-    instancePm2: any;
+    alreadyExists: boolean;
+    node: SpinalOrganModel;
+    instancePm2?: ProcessDescription;
 }

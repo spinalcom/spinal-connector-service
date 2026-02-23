@@ -24,3 +24,8 @@
 
 export const DEFAULT_ORGAN_TYPE = "SPINAL_ORGAN";
 export const DEFAULT_PATH = "/etc/Organs";
+
+export enum QueueEvents {
+    FINISH = "finish",
+    START = "start",
+}

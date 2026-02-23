@@ -54,8 +54,7 @@ function getPm2Instance(name) {
     return new Promise((resolve, reject) => {
         (0, pm2_1.list)((err, apps) => {
             if (err) {
-                console.error(err);
-                return reject(err);
+                return resolve(undefined);
             }
             const instance = apps.find(app => app.name === name);
             resolve(instance);

@@ -48,8 +48,7 @@ export function getPm2Instance(name: string): Promise<ProcessDescription | undef
     return new Promise((resolve, reject) => {
         pm2ProcessList((err, apps) => {
             if (err) {
-                console.error(err);
-                return reject(err);
+                return resolve(undefined);
             }
             const instance = apps.find(app => app.name === name);
             resolve(instance);

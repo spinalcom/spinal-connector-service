@@ -1,6 +1,33 @@
 import { Model } from "spinal-core-connectorjs";
 import { SpinalNode } from "spinal-env-viewer-graph-service";
-declare class SpinalOrganModel extends Model {
+/**
+ * Represents an Organ model within the Spinal framework, providing mechanisms to manage
+ * references to SpinalNode instances across different contexts, as well as handling
+ * discovery, pilot, and listener models.
+ *
+ * @template D - The type of data managed by the discovery model.
+ * @template P - The type of data managed by the pilot model.
+ * @template L - The type of data managed by the listener model.
+ *
+ * @extends Model
+ *
+ * @remarks
+ * The SpinalOrganModel class is designed to encapsulate the logic for managing
+ * organ nodes and their references within various contexts. It supports adding,
+ * checking, and removing references to SpinalNode instances, and maintains
+ * separate models for discovery, pilot, and listener functionalities.
+ *
+ * @example
+ * ```typescript
+ * const organ = new SpinalOrganModel('OrganName', 'OrganType');
+ * organ.addReference('contextId', spinalNodeInstance);
+ * if (organ.isReferencedInContext('contextId')) {
+ *   // Do something
+ * }
+ * organ.removeReference('contextId');
+ * ```
+ */
+declare class SpinalOrganModel<D extends Model = any, P extends Model = any, L extends Model = any> extends Model {
     constructor(name?: string, type?: string);
     /**
      * Adds a reference to an organ SpinalNode for the specified context ID.
@@ -10,7 +37,7 @@ declare class SpinalOrganModel extends Model {
      * @param spinalNode - The organ SpinalNode instance to be referenced.
      * @returns The organ SpinalNode that was added as a reference.
      */
-    addReferences(contextId: string, spinalNode: SpinalNode): SpinalNode;
+    addReference(contextId: string, spinalNode: SpinalNode): SpinalNode;
     /**
      * Checks if the current organ model is referenced within a specific context.
      *
@@ -26,7 +53,7 @@ declare class SpinalOrganModel extends Model {
      *
      * @param contextId - The unique identifier of the context from which to remove the reference.
      */
-    removeReferences(contextId: string): void;
+    removeReference(contextId: string): void;
 }
 export default SpinalOrganModel;
 export { SpinalOrganModel };

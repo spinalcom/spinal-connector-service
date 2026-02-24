@@ -19,15 +19,6 @@ class SpinalConnectorService {
         return this._instance;
     }
 
-
-    /**
-     * Initialize the SpinalConnectorService by loading or creating the organ configuration file and checking for an existing PM2 instance.
-     *
-     * @param {spinal.FileSystem} connect
-     * @param {IConnectorInfo} organInfo
-     * @return {*}  {Promise<IConnectorCreation>}
-     * @memberof SpinalConnectorService
-     */
     public async initialize(connect: spinal.FileSystem, organInfo: IConnectorInfo): Promise<IConnectorCreation> {
 
         this._organInfo = organInfo;
@@ -51,46 +42,22 @@ class SpinalConnectorService {
     }
 
 
-    /**
-     * Retrieves the current organ configuration model.
-     *
-     * @returns The {@link SpinalOrganModel} instance representing the organ configuration,
-     * or `null` if no configuration is available.
-     */
     public getOrganConfig(): SpinalOrganModel | null {
         return this.organConfigModel;
     }
 
 
-    /**
-     * Checks if the provided organ ID matches the ID of the current organ configuration model.
-     *
-     * @param organId - The ID of the organ to compare against the current organ configuration model.
-     * @returns `true` if the organ IDs are the same; otherwise, `false`.
-     */
-    checkIfItsSameOrgan(organId: string): boolean {
+    public checkIfItsSameOrgan(organId: string): boolean {
         if (!this.organConfigModel) return false;
         return this.organConfigModel.id.get() === organId;
     }
 
 
-    /**
-     * Retrieves the PM2 process instance associated with the current organ information.
-     *
-     * @returns A promise that resolves to a `ProcessDescription` object if the organ information is available,
-     *          or `undefined` if it is not.
-     */
     public getPm2Instance(): Promise<ProcessDescription | undefined> {
         if (!this._organInfo) return Promise.resolve(undefined);
         return getPm2Instance(this._organInfo?.name || '');
     }
 
-    /**
-     * Binds a listener to the `restart` property of the `organConfigModel`.
-     * When the `restart` property is triggered and set to true, this method
-     * initiates a restart of the PM2 instance`.
-     * Note: This method should be called after the `organConfigModel` has been initialized and assigned.
-     */
     public _bindRestart() {
         if (!this._organInfo) return;
         this.organConfigModel?.restart.bind(async () => {
@@ -115,9 +82,6 @@ class SpinalConnectorService {
 
         });
     }
-
-
-
 
 }
 

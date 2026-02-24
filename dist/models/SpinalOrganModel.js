@@ -4,6 +4,34 @@ exports.SpinalOrganModel = void 0;
 const spinal_core_connectorjs_1 = require("spinal-core-connectorjs");
 const constants_1 = require("../utils/constants");
 const uuid_1 = require("uuid");
+const ModelsInfo_1 = require("./ModelsInfo");
+/**
+ * Represents an Organ model within the Spinal framework, providing mechanisms to manage
+ * references to SpinalNode instances across different contexts, as well as handling
+ * discovery, pilot, and listener models.
+ *
+ * @template D - The type of data managed by the discovery model.
+ * @template P - The type of data managed by the pilot model.
+ * @template L - The type of data managed by the listener model.
+ *
+ * @extends Model
+ *
+ * @remarks
+ * The SpinalOrganModel class is designed to encapsulate the logic for managing
+ * organ nodes and their references within various contexts. It supports adding,
+ * checking, and removing references to SpinalNode instances, and maintains
+ * separate models for discovery, pilot, and listener functionalities.
+ *
+ * @example
+ * ```typescript
+ * const organ = new SpinalOrganModel('OrganName', 'OrganType');
+ * organ.addReference('contextId', spinalNodeInstance);
+ * if (organ.isReferencedInContext('contextId')) {
+ *   // Do something
+ * }
+ * organ.removeReference('contextId');
+ * ```
+ */
 class SpinalOrganModel extends spinal_core_connectorjs_1.Model {
     constructor(name, type = constants_1.DEFAULT_ORGAN_TYPE) {
         super();
@@ -15,6 +43,9 @@ class SpinalOrganModel extends spinal_core_connectorjs_1.Model {
             type: type,
             references: {},
             restart: false,
+            discover: new ModelsInfo_1.default(),
+            pilot: new ModelsInfo_1.default(),
+            listener: new ModelsInfo_1.default()
         });
     }
     /**
@@ -25,7 +56,7 @@ class SpinalOrganModel extends spinal_core_connectorjs_1.Model {
      * @param spinalNode - The organ SpinalNode instance to be referenced.
      * @returns The organ SpinalNode that was added as a reference.
      */
-    addReferences(contextId, spinalNode) {
+    addReference(contextId, spinalNode) {
         const refFound = this.references[contextId];
         if (refFound)
             this.references.rem_attr(contextId);
@@ -49,7 +80,7 @@ class SpinalOrganModel extends spinal_core_connectorjs_1.Model {
      *
      * @param contextId - The unique identifier of the context from which to remove the reference.
      */
-    removeReferences(contextId) {
+    removeReference(contextId) {
         if (this.isReferencedInContext(contextId))
             this.references.rem_attr(contextId);
     }

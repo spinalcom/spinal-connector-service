@@ -1,7 +1,7 @@
 import { Lst, Model, Ptr, spinalCore } from "spinal-core-connectorjs";
 import * as lodash from "lodash";
 
-class BasicModelToBind<T extends Model> extends Model {
+class ModelsInfo<T extends Model> extends Model {
 
     private _debounceChange: lodash.DebouncedFunc<() => void>;
 
@@ -94,6 +94,6 @@ class BasicModelToBind<T extends Model> extends Model {
     }
 }
 
-spinalCore.register_models([BasicModelToBind]);
-export default BasicModelToBind;
-export { BasicModelToBind };
+spinalCore.register_models([ModelsInfo]);
+export default ModelsInfo;
+export { ModelsInfo };

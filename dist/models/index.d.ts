@@ -1,2 +1,2 @@
-export * from "./BasicModelToBind";
+export * from "./ModelsInfo";
 export * from "./SpinalOrganModel";

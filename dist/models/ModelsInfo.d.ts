@@ -1,5 +1,5 @@
 import { Lst, Model } from "spinal-core-connectorjs";
-declare class BasicModelToBind<T extends Model> extends Model {
+declare class ModelsInfo<T extends Model> extends Model {
     private _debounceChange;
     constructor();
     /**
@@ -42,5 +42,5 @@ declare class BasicModelToBind<T extends Model> extends Model {
      */
     listenToChange(callback: (models: T[]) => void): void;
 }
-export default BasicModelToBind;
-export { BasicModelToBind };
+export default ModelsInfo;
+export { ModelsInfo };

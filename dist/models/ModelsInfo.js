@@ -9,10 +9,10 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.BasicModelToBind = void 0;
+exports.ModelsInfo = void 0;
 const spinal_core_connectorjs_1 = require("spinal-core-connectorjs");
 const lodash = require("lodash");
-class BasicModelToBind extends spinal_core_connectorjs_1.Model {
+class ModelsInfo extends spinal_core_connectorjs_1.Model {
     constructor() {
         super();
         this.add_attr({
@@ -97,7 +97,7 @@ class BasicModelToBind extends spinal_core_connectorjs_1.Model {
         }));
     }
 }
-exports.BasicModelToBind = BasicModelToBind;
-spinal_core_connectorjs_1.spinalCore.register_models([BasicModelToBind]);
-exports.default = BasicModelToBind;
-//# sourceMappingURL=BasicModelToBind.js.map
+exports.ModelsInfo = ModelsInfo;
+spinal_core_connectorjs_1.spinalCore.register_models([ModelsInfo]);
+exports.default = ModelsInfo;
+//# sourceMappingURL=ModelsInfo.js.map

@@ -22,5 +22,5 @@
  * <http://resources.spinalcom.com/licenses.pdf>.
  */
 
-export * from "./BasicModelToBind";
+export * from "./ModelsInfo";
 export * from "./SpinalOrganModel";

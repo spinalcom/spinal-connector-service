@@ -23,8 +23,10 @@
  * <http://resources.spinalcom.com/licenses.pdf>.
  */
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.s4 = exports.guid = exports.waitModelReady = void 0;
+exports.loadPtr = exports.getPathData = exports.s4 = exports.guid = exports.waitModelReady = void 0;
 const spinal_core_connectorjs_type_1 = require("spinal-core-connectorjs_type");
+const axios_retry_1 = require("axios-retry");
+const axios_1 = require("axios");
 const Q = require('q');
 function waitModelReady() {
     const deferred = Q.defer();
@@ -53,4 +55,25 @@ function s4() {
         .substring(1);
 }
 exports.s4 = s4;
+function getPathData(dynamicId, hubUrl = "") {
+    const path = `${hubUrl}/sceen/_?u=${dynamicId}`;
+    const client = axios_1.default.create({ baseURL: hubUrl });
+    (0, axios_retry_1.default)(client, { retries: 3, retryDelay: axios_retry_1.default.exponentialDelay });
+    return client.get(path, { responseType: 'arraybuffer' }).then((response) => {
+        // return Buffer.from(response.data);
+        return new Uint8Array(response.data);
+    });
+}
+exports.getPathData = getPathData;
+function loadPtr(ptr) {
+    return new Promise((resolve, reject) => {
+        try {
+            ptr.load((data) => resolve(data));
+        }
+        catch (error) {
+            reject(error);
+        }
+    });
+}
+exports.loadPtr = loadPtr;
 //# sourceMappingURL=functions.js.map

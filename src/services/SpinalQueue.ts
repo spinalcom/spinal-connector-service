@@ -17,6 +17,27 @@ import { QueueEvents } from "../utils/constants"
  * @property {boolean} isProcessing - Indicates if the queue is currently being processed.
  * @property {number} startDebounce - The debounce delay (in ms) before starting the queue.
  * 
+ * 
+ * @method start() - Starts processing the queue if not already in progress.
+ * @method addToQueue(item: T | T[]) - Adds one or more items to the queue and triggers debounced start.
+ * @method setQueue(queue: T[]) - Sets the queue with the provided array of items, clears the existing queue, recalculates the processing percentage, and initiates the debounced start process.
+ * @method dequeue() - Removes and returns the first item from the queue, recalculates the percent, and triggers finish if the queue becomes empty.
+ * @method pop() - Removes and returns the last item from the queue, recalculates the percent, and triggers finish if the queue becomes empty.
+ * @method clear() - Clears the queue by resetting the queue list, processed items, and percent completion, and calls finish.
+ * @method toArray() - Returns a shallow copy of the current queue as an array.
+ * @method isEmpty() - Checks whether the queue is empty.
+ * @method getQueue() - Deprecated method to get the queue, use toArray instead.
+ * @method refresh() - Deprecated method to clear the queue, use clear instead.
+ * @event QueueEvents.START - Emitted when the queue starts processing.
+ * @event QueueEvents.FINISH - Emitted when the queue finishes processing.
+ * 
+ * @example
+ * const queue = new SpinalQueue<string>();
+ * queue.on(QueueEvents.START, () => console.log("Queue started"));
+ * queue.on(QueueEvents.FINISH, () => console.log("Queue finished"));
+ * queue.addToQueue(["item1", "item2", "item3"]);
+ * console.log(queue.percent); // Outputs the percentage of completion
+ * 
  */
 export class SpinalQueue<T> extends EventEmitter {
     private processed: Array<T> = []; // List of processed items, used to calculate the percentage of completion

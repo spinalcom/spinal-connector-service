@@ -12,6 +12,25 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.ModelsInfo = void 0;
 const spinal_core_connectorjs_1 = require("spinal-core-connectorjs");
 const lodash = require("lodash");
+/**
+ * Represents a generic container for managing a list of models with change tracking and debounced modification date updates.
+ *
+ * @typeParam T - The type of model managed by this container, extending the base `Model` class.
+ *
+ * @remarks
+ * - The class maintains a list of models and tracks the modification date.
+ * - It provides methods to add, remove, and consume models, as well as to listen for changes.
+ * - The modification date is updated in a debounced manner to avoid excessive updates.
+ *
+ * @example
+ * ```typescript
+ * const modelsInfo = new ModelsInfo<MyModel>();
+ * await modelsInfo.addModel(new MyModel());
+ * modelsInfo.listenToChange((models) => {
+ *   console.log('Models changed:', models);
+ * });
+ * ```
+ */
 class ModelsInfo extends spinal_core_connectorjs_1.Model {
     constructor() {
         super();
@@ -22,12 +41,6 @@ class ModelsInfo extends spinal_core_connectorjs_1.Model {
         });
         this._debounceChange = lodash.debounce(() => this.modification_date.set(Date.now()), 1000);
     }
-    /**
-     * Adds a new model to the internal list and updates the length property.
-     *
-     * @param model - The model instance to add to the list.
-     * @returns A promise that resolves to the new length of the list after the model is added.
-     */
     addModel(model) {
         return __awaiter(this, void 0, void 0, function* () {
             const dataList = yield this.getList();
@@ -37,13 +50,6 @@ class ModelsInfo extends spinal_core_connectorjs_1.Model {
             return this.length;
         });
     }
-    /**
-     * Removes the specified model from the internal list.
-     *
-     * @param model - The model instance to be removed.
-     * @returns A promise that resolves to the new length of the list after removal.
-     * @throws May throw if the underlying list retrieval or removal fails.
-     */
     removeModel(model) {
         return __awaiter(this, void 0, void 0, function* () {
             const dataList = yield this.getList();
@@ -52,11 +58,6 @@ class ModelsInfo extends spinal_core_connectorjs_1.Model {
             return this.length;
         });
     }
-    /**
-     * Asynchronously retrieves a list of items of type `T`.
-     *
-     * @returns {Promise<Lst<T>>} A promise that resolves with the loaded list of items.
-     */
     getList() {
         return __awaiter(this, void 0, void 0, function* () {
             return new Promise((resolve) => {
@@ -64,16 +65,6 @@ class ModelsInfo extends spinal_core_connectorjs_1.Model {
             });
         });
     }
-    /**
-     * Consumes and returns all models currently in the list.
-     *
-     * This method retrieves the current list of models, converts it to an array,
-     * resets the internal length to zero, and clears the list to indicate that
-     * the models have been consumed. The returned array contains all models that
-     * were present before the list was cleared.
-     *
-     * @returns {Promise<T[]>} A promise that resolves to an array of models of type `T`.
-     */
     consumeModels() {
         return __awaiter(this, void 0, void 0, function* () {
             const dataList = yield this.getList();
@@ -83,12 +74,6 @@ class ModelsInfo extends spinal_core_connectorjs_1.Model {
             return arr;
         });
     }
-    /**
-     * Registers a callback function to be invoked whenever the `modification_date` changes.
-     * The callback receives an updated array of models of type `T`.
-     *
-     * @param callback - A function that will be called with the updated list of models (`T[]`) whenever a change is detected.
-     */
     listenToChange(callback) {
         this.modification_date.bind(() => __awaiter(this, void 0, void 0, function* () {
             const dataList = yield this.getList();

@@ -2,16 +2,14 @@ import { Lst, Model, Ptr, spinalCore } from "spinal-core-connectorjs";
 import * as lodash from "lodash";
 
 /**
- * A generic class for managing a list of models with change tracking and debounced modification date updates.
+ * Represents a generic container for managing a list of models with change tracking and debounced modification date updates.
  *
- * @template T - The type of model managed by this class, extending the base `Model` class.
- * 
- * @extends Model
+ * @typeParam T - The type of model managed by this container, extending the base `Model` class.
  *
  * @remarks
- * - Maintains a list of models and tracks the modification date.
- * - Provides methods to add, remove, and consume models asynchronously.
- * - Notifies listeners on changes with debounced updates to avoid excessive notifications.
+ * - The class maintains a list of models and tracks the modification date.
+ * - It provides methods to add, remove, and consume models, as well as to listen for changes.
+ * - The modification date is updated in a debounced manner to avoid excessive updates.
  *
  * @example
  * ```typescript
@@ -21,17 +19,8 @@ import * as lodash from "lodash";
  *   console.log('Models changed:', models);
  * });
  * ```
- * 
- * @methods
- * - `addModel(model: T): Promise<number>` - Adds a model to the list and returns the new length.
- * - `removeModel(model: T): Promise<number>` - Removes a model from the list and returns the new length.
- * - `getList(): Promise<Lst<T>>` - Retrieves the list of models.
- * - `consumeModels(): Promise<T[]>` - Retrieves and clears the list of models, returning them as an array.
- * - `listenToChange(callback: (models: T[]) => void): void` - Registers a callback to be called when the models change.
- *
- * 
  */
-class ModelsInfo<T extends Model> extends Model {
+class ModelsInfo<T extends Model = any> extends Model {
 
     private _debounceChange: lodash.DebouncedFunc<() => void>;
 

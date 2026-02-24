@@ -25,7 +25,32 @@
 export const DEFAULT_ORGAN_TYPE = "SPINAL_ORGAN";
 export const DEFAULT_PATH = "/etc/Organs";
 
-export enum QueueEvents {
-    FINISH = "finish",
-    START = "start",
-}
+
+export const QueueEvents = {
+    FINISH: "finish",
+    START: "start",
+} as const;
+
+
+export const STATES = {
+    initial: "initial",
+    readyToDiscover: "readyToDiscover",
+    discovering: "discovering",
+    discovered: "discovered",
+    readyToCreate: "readyToCreate",
+    creating: "creating",
+    created: "created",
+    error: "error",
+    timeout: "timeout",
+    cancelled: "cancelled",
+    pending: "pending",
+    stopped: "stopped"
+} as const;
+
+
+export const PILOT_STATES = {
+    init: "init",
+    processing: "processing",
+    success: "success",
+    error: "error"
+} as const;

@@ -24,6 +24,9 @@
 
 
 import { FileSystem } from 'spinal-core-connectorjs_type';
+import axiosRetry from 'axios-retry';
+import axios from "axios";
+import { SpinalNode } from 'spinal-env-viewer-graph-service';
 
 const Q = require('q');
 
@@ -54,3 +57,23 @@ export function s4(): string {
 }
 
 
+export function getPathData(dynamicId: number, hubUrl: string = "") {
+    const path = `${hubUrl}/sceen/_?u=${dynamicId}`;
+    const client = axios.create({ baseURL: hubUrl });
+    axiosRetry(client, { retries: 3, retryDelay: axiosRetry.exponentialDelay });
+    return client.get(path, { responseType: 'arraybuffer' }).then((response) => {
+        // return Buffer.from(response.data);
+        return new Uint8Array(response.data);
+    });
+}
+
+
+export function loadPtr(ptr: spinal.Ptr | spinal.Pbr): Promise<any> {
+    return new Promise((resolve, reject) => {
+        try {
+            ptr.load((data) => resolve(data));
+        } catch (error) {
+            reject(error);
+        }
+    });
+}

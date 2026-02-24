@@ -28,22 +28,21 @@ import ModelsInfo from "./ModelsInfo";
  * await organ.addDiscoverModelToGraph(new MyDiscoverModel());
  * ```
  * 
- * @methods 
- * - `addReference(contextId: string, spinalNode: SpinalNode): SpinalNode` - Adds a reference to a context.
- * - `isReferencedInContext(contextId: string): boolean` - Checks if the organ is referenced in a specific context.
- * - `removeReference(contextId: string): void` - Removes a reference to a context.
- * - `addDiscoverModelToGraph(discoverModel: D): Promise<number>` - Adds a discover model to the graph.
- * - `addPilotModelToGraph(pilotModel: P): Promise<number>` - Adds a pilot model to the graph.
- * - `addListenerModelToGraph(listenerModel: L): Promise<number>` - Adds a listener model to the graph.
- * - `removeDiscoverModelFromGraph(discoverModel: D): Promise<boolean>` - Removes a discover model from the graph.
- * - `removePilotModelFromGraph(pilotModel: P): Promise<boolean>` - Removes a pilot model from the graph.
- * - `removeListenerModelFromGraph(listenerModel: L): Promise<boolean>` - Removes a listener model from the graph.
- * - `getDiscoverModelFromGraph(): Promise<Lst<D> | undefined>` - Retrieves the list of discover models from the graph.
- * - `getPilotModelFromGraph(): Promise<Lst<P> | undefined>` - Retrieves the list of pilot models from the graph.
- * - `getListenerModelFromGraph(): Promise<Lst<L> | undefined>` - Retrieves the list of listener models from the graph.
- * - `consumeDiscoverModelFromGraph(): Promise<D[]>` - Consumes and retrieves all discover models from the graph.
- * - `consumePilotModelFromGraph(): Promise<P[]>` - Consumes and retrieves all pilot models from the graph.
- * - `consumeListenerModelFromGraph(): Promise<L[]>` - Consumes and retrieves all listener models from the graph.
+ * @method addReference(contextId: string, spinalNode: SpinalNode): SpinalNode - Adds a reference to a context.
+ * @method isReferencedInContext(contextId: string): boolean - Checks if the organ is referenced in a specific context.
+ * @method removeReference(contextId: string): void - Removes a reference to a context.
+ * @method addDiscoverModelToGraph(discoverModel: D): Promise<number> - Adds a discover model to the graph.
+ * @method addPilotModelToGraph(pilotModel: P): Promise<number> - Adds a pilot model to the graph.
+ * @method addListenerModelToGraph(listenerModel: L): Promise<number> - Adds a listener model to the graph.
+ * @method removeDiscoverModelFromGraph(discoverModel: D): Promise<boolean> - Removes a discover model from the graph.
+ * @method removePilotModelFromGraph(pilotModel: P): Promise<boolean> - Removes a pilot model from the graph.
+ * @method removeListenerModelFromGraph(listenerModel: L): Promise<boolean> - Removes a listener model from the graph.
+ * @method getDiscoverModelFromGraph(): Promise<Lst<D> | undefined> - Retrieves the list of discover models from the graph.
+ * @method getPilotModelFromGraph(): Promise<Lst<P> | undefined> - Retrieves the list of pilot models from the graph.
+ * @method getListenerModelFromGraph(): Promise<Lst<L> | undefined> - Retrieves the list of listener models from the graph.
+ * @method consumeDiscoverModelFromGraph(): Promise<D[]> - Consumes and retrieves all discover models from the graph.
+ * @method consumePilotModelFromGraph(): Promise<P[]> - Consumes and retrieves all pilot models from the graph.
+ * @method consumeListenerModelFromGraph(): Promise<L[]> - Consumes and retrieves all listener models from the graph.
  * 
  * @see {@link ModelsInfo} for managing collections of models.
  */

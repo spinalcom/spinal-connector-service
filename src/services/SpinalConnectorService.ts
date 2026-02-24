@@ -5,6 +5,27 @@ import { DEFAULT_PATH } from "../utils/constants";
 import { createOrganConfigFile, getOrganConfig, getPm2Instance } from "../utils/lifecycle";
 
 
+/**
+ * Singleton service class responsible for managing the lifecycle and configuration
+ * of a Spinal Organ within the SpinalCom ecosystem.
+ *
+ * The `SpinalConnectorService` handles initialization, configuration file management,
+ * PM2 process instance retrieval and restart logic, and provides access to the
+ * current organ configuration.
+ *
+ * @remarks
+ * - Use `SpinalConnectorService.getInstance()` to obtain the singleton instance.
+ * - The service ensures that the organ configuration file exists and is loaded,
+ *   and provides utility methods to interact with the organ's PM2 process.
+ *
+ * @example
+ * ```typescript
+ * const connectorService = SpinalConnectorService.getInstance();
+ * await connectorService.initialize(connect, organInfo);
+ * ```
+ *
+ * @public
+ */
 class SpinalConnectorService {
     private static _instance: SpinalConnectorService | null = null;
     private _organInfo: IConnectorInfo | null = null;

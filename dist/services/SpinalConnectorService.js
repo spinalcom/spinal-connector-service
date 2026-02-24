@@ -13,6 +13,27 @@ exports.SpinalConnectorService = void 0;
 const pm2_1 = require("pm2");
 const constants_1 = require("../utils/constants");
 const lifecycle_1 = require("../utils/lifecycle");
+/**
+ * Singleton service class responsible for managing the lifecycle and configuration
+ * of a Spinal Organ within the SpinalCom ecosystem.
+ *
+ * The `SpinalConnectorService` handles initialization, configuration file management,
+ * PM2 process instance retrieval and restart logic, and provides access to the
+ * current organ configuration.
+ *
+ * @remarks
+ * - Use `SpinalConnectorService.getInstance()` to obtain the singleton instance.
+ * - The service ensures that the organ configuration file exists and is loaded,
+ *   and provides utility methods to interact with the organ's PM2 process.
+ *
+ * @example
+ * ```typescript
+ * const connectorService = SpinalConnectorService.getInstance();
+ * await connectorService.initialize(connect, organInfo);
+ * ```
+ *
+ * @public
+ */
 class SpinalConnectorService {
     constructor() {
         this._organInfo = null;
@@ -24,14 +45,6 @@ class SpinalConnectorService {
         }
         return this._instance;
     }
-    /**
-     * Initialize the SpinalConnectorService by loading or creating the organ configuration file and checking for an existing PM2 instance.
-     *
-     * @param {spinal.FileSystem} connect
-     * @param {IConnectorInfo} organInfo
-     * @return {*}  {Promise<IConnectorCreation>}
-     * @memberof SpinalConnectorService
-     */
     initialize(connect, organInfo) {
         return __awaiter(this, void 0, void 0, function* () {
             this._organInfo = organInfo;
@@ -48,44 +61,20 @@ class SpinalConnectorService {
             return { alreadyExists, node: organModel, instancePm2 };
         });
     }
-    /**
-     * Retrieves the current organ configuration model.
-     *
-     * @returns The {@link SpinalOrganModel} instance representing the organ configuration,
-     * or `null` if no configuration is available.
-     */
     getOrganConfig() {
         return this.organConfigModel;
     }
-    /**
-     * Checks if the provided organ ID matches the ID of the current organ configuration model.
-     *
-     * @param organId - The ID of the organ to compare against the current organ configuration model.
-     * @returns `true` if the organ IDs are the same; otherwise, `false`.
-     */
     checkIfItsSameOrgan(organId) {
         if (!this.organConfigModel)
             return false;
         return this.organConfigModel.id.get() === organId;
     }
-    /**
-     * Retrieves the PM2 process instance associated with the current organ information.
-     *
-     * @returns A promise that resolves to a `ProcessDescription` object if the organ information is available,
-     *          or `undefined` if it is not.
-     */
     getPm2Instance() {
         var _a;
         if (!this._organInfo)
             return Promise.resolve(undefined);
         return (0, lifecycle_1.getPm2Instance)(((_a = this._organInfo) === null || _a === void 0 ? void 0 : _a.name) || '');
     }
-    /**
-     * Binds a listener to the `restart` property of the `organConfigModel`.
-     * When the `restart` property is triggered and set to true, this method
-     * initiates a restart of the PM2 instance`.
-     * Note: This method should be called after the `organConfigModel` has been initialized and assigned.
-     */
     _bindRestart() {
         var _a;
         if (!this._organInfo)

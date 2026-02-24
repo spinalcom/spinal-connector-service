@@ -33,8 +33,8 @@ import { SpinalNode } from "spinal-env-viewer-graph-service";
  * @method addToNode - Attaches the pilot to a given endpoint node.
  * @method removeFromNode - Removes the pilot from its associated node.
  */
-declare class SpinalPilot<T> extends Model {
-    constructor(organ?: SpinalNode, requests?: T);
+declare class SpinalPilot<RequestType> extends Model {
+    constructor(organ?: SpinalNode, requests?: RequestType | RequestType[]);
     setInitMode(): void;
     setProcessMode(): void;
     setSuccessMode(): void;

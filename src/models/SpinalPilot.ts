@@ -40,8 +40,8 @@ import SpinalOrganModel from "./SpinalOrganModel";
  * @method addToNode - Attaches the pilot to a given endpoint node.
  * @method removeFromNode - Removes the pilot from its associated node.
  */
-class SpinalPilot<T> extends Model {
-    constructor(organ?: SpinalNode, requests?: T) {
+class SpinalPilot<RequestType> extends Model {
+    constructor(organ?: SpinalNode, requests?: RequestType | RequestType[]) {
         super();
         if (!organ || !requests) return;
 

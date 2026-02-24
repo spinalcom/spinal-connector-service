@@ -44,7 +44,7 @@ import * as gzip from "node-gzip"
  * @method getTreeToCreate(hubUrl?: string): Retrieves and decompresses the to-be-created tree data.
  * 
  */
-class SpinalDiscover<T extends Model> extends Model {
+class SpinalDiscover extends Model {
     constructor(graph?: SpinalGraph, context?: SpinalContext, organ?: SpinalNode) {
         super();
         if (!graph || !context || !organ) return;
@@ -82,14 +82,14 @@ class SpinalDiscover<T extends Model> extends Model {
 
     public addToGraph(): Promise<number> {
         return this.getOrgan().then(async (organNode: SpinalNode) => {
-            const organ: ModelsInfo<T> = await organNode.getElement(true);
+            const organ: ModelsInfo = await organNode.getElement(true);
             return organ.addDiscoverModelToGraph(this);
         });
     }
 
     public removeFromGraph(): Promise<boolean> {
         return this.getOrgan().then(async (organNode: SpinalNode) => {
-            const organ: ModelsInfo<T> = await organNode.getElement(true);
+            const organ: ModelsInfo = await organNode.getElement(true);
 
             return organ.removeDiscoverModelFromGraph(this);
         });

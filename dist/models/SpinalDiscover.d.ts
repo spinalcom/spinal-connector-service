@@ -38,7 +38,7 @@ import { STATES } from "../utils/constants";
  * @method getTreeToCreate(hubUrl?: string): Retrieves and decompresses the to-be-created tree data.
  *
  */
-declare class SpinalDiscover<T extends Model> extends Model {
+declare class SpinalDiscover extends Model {
     constructor(graph?: SpinalGraph, context?: SpinalContext, organ?: SpinalNode);
     getGraph(): Promise<SpinalNode>;
     getOrgan(): Promise<SpinalNode>;

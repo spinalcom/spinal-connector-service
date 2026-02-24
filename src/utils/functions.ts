@@ -26,7 +26,6 @@
 import { FileSystem } from 'spinal-core-connectorjs_type';
 import axiosRetry from 'axios-retry';
 import axios from "axios";
-import { SpinalNode } from 'spinal-env-viewer-graph-service';
 
 const Q = require('q');
 

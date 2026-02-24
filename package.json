@@ -1,6 +1,6 @@
 {
 	"name": "spinal-connector-service",
-	"version": "2.0.4",
+	"version": "2.1.0",
 	"description": "",
 	"main": "dist/index.js",
 	"scripts": {
@@ -11,10 +11,14 @@
 	"author": "",
 	"license": "ISC",
 	"dependencies": {
+		"axios": "^1.13.5",
+		"axios-retry": "^4.5.0",
 		"dotenv": "^16.0.1",
 		"json5": "^2.2.0",
 		"lodash": "^4.17.21",
-		"pm2": "^4.5.6"
+		"node-gzip": "^1.1.2",
+		"pm2": "^4.5.6",
+		"Q": "^1.0.0"
 	},
 	"devDependencies": {
 		"@types/node": "^18.7.6",

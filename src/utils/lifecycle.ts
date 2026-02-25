@@ -4,6 +4,7 @@ import { SpinalOrganModel } from "../models";
 import { DEFAULT_ORGAN_TYPE, DEFAULT_PATH } from "./constants";
 import { File as SpinalFile } from "spinal-core-connectorjs";
 import * as pm2 from "pm2";
+import { waitModelReady } from "./functions";
 
 
 export function getOrganConfig(spinalConnection: spinal.FileSystem, filePath: string): Promise<SpinalOrganModel | null> {
@@ -32,9 +33,11 @@ export function createOrganConfigFile(spinalConnection: spinal.FileSystem, organ
         if (!organInfo.path) organInfo.path = `${DEFAULT_PATH}/${organInfo.name}`;
         if (!organInfo.model) organInfo.model = new SpinalOrganModel(organInfo.name, organInfo.type);
 
-        const { folderPath, fileName } = getFileInfoByPath(organInfo.path);
+        let { folderPath, fileName } = getFileInfoByPath(organInfo.path);
+        if (fileName.toLowerCase().endsWith(".conf")) fileName = fileName.replace(/\.conf$/i, ""); // Remove .conf extension if present
 
-        spinalConnection.load_or_make_dir(`${folderPath}`, (directory) => {
+        spinalConnection.load_or_make_dir(`${folderPath}`, async (directory) => {
+            await waitModelReady();
             const file = new SpinalFile(`${fileName}.conf`.toLowerCase(), organInfo.model, undefined);
             directory.push(file);
             return resolve(organInfo.model as SpinalOrganModel);

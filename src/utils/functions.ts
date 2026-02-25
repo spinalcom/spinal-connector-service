@@ -29,20 +29,21 @@ import axios from "axios";
 
 const Q = require('q');
 
-export function waitModelReady() {
-    const deferred = Q.defer();
-    const waitModelReadyLoop = (defer) => {
-        if (!FileSystem._sig_server) {
-            setTimeout(() => {
-                defer.resolve(waitModelReadyLoop(defer));
-            }, 200);
-        } else {
-            defer.resolve();
-        }
-        return defer.promise;
-    };
-    return waitModelReadyLoop(deferred);
-};
+export function waitModelReady(): Promise<void> {
+    return new Promise((resolve) => {
+        const wait = () => {
+            if (!FileSystem._sig_server) {
+                setTimeout(wait, 200);
+            } else {
+                resolve();
+            }
+        };
+
+        wait();
+    });
+}
+
+
 
 export function guid(name: string): string {
     return `${name}-${s4() + s4()}-${s4()}-${s4()}-${s4()}-${s4() + s4() + s4()}-${Date.now().toString(16)}`;

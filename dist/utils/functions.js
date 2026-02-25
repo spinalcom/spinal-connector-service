@@ -29,22 +29,19 @@ const axios_retry_1 = require("axios-retry");
 const axios_1 = require("axios");
 const Q = require('q');
 function waitModelReady() {
-    const deferred = Q.defer();
-    const waitModelReadyLoop = (defer) => {
-        if (!spinal_core_connectorjs_type_1.FileSystem._sig_server) {
-            setTimeout(() => {
-                defer.resolve(waitModelReadyLoop(defer));
-            }, 200);
-        }
-        else {
-            defer.resolve();
-        }
-        return defer.promise;
-    };
-    return waitModelReadyLoop(deferred);
+    return new Promise((resolve) => {
+        const wait = () => {
+            if (!spinal_core_connectorjs_type_1.FileSystem._sig_server) {
+                setTimeout(wait, 200);
+            }
+            else {
+                resolve();
+            }
+        };
+        wait();
+    });
 }
 exports.waitModelReady = waitModelReady;
-;
 function guid(name) {
     return `${name}-${s4() + s4()}-${s4()}-${s4()}-${s4()}-${s4() + s4() + s4()}-${Date.now().toString(16)}`;
 }

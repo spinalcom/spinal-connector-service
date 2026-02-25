@@ -61,6 +61,9 @@ class SpinalOrganModel extends spinal_core_connectorjs_1.Model {
             listener: new ModelsInfo_1.default()
         });
     }
+    getModels() {
+        return { discover: this.discover, pilot: this.pilot, listener: this.listener };
+    }
     addReference(contextId, spinalNode) {
         const refFound = this.references[contextId];
         if (refFound)

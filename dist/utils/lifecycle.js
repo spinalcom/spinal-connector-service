@@ -14,7 +14,6 @@ const models_1 = require("../models");
 const constants_1 = require("./constants");
 const spinal_core_connectorjs_1 = require("spinal-core-connectorjs");
 const pm2 = require("pm2");
-const functions_1 = require("./functions");
 function getOrganConfig(spinalConnection, filePath) {
     return new Promise((resolve) => {
         const { folderPath, fileName } = getFileInfoByPath(filePath);
@@ -46,7 +45,6 @@ function createOrganConfigFile(spinalConnection, organInfo) {
         if (fileName.toLowerCase().endsWith(".conf"))
             fileName = fileName.replace(/\.conf$/i, ""); // Remove .conf extension if present
         spinalConnection.load_or_make_dir(`${folderPath}`, (directory) => __awaiter(this, void 0, void 0, function* () {
-            yield (0, functions_1.waitModelReady)();
             const file = new spinal_core_connectorjs_1.File(`${fileName}.conf`.toLowerCase(), organInfo.model, undefined);
             directory.push(file);
             return resolve(organInfo.model);

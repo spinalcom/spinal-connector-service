@@ -3,6 +3,7 @@ import { DEFAULT_ORGAN_TYPE } from "../utils/constants";
 import { v4 as uuidv4 } from "uuid";
 import { SpinalNode } from "spinal-env-viewer-graph-service";
 import ModelsInfo from "./ModelsInfo";
+import { loadPtr } from "../utils/functions";
 
 
 
@@ -64,6 +65,9 @@ class SpinalOrganModel<D extends Model = any, P extends Model = any, L extends M
         });
     }
 
+    getModels(): { discover?: ModelsInfo<D>, pilot?: ModelsInfo<P>, listener?: ModelsInfo<L> } {
+        return { discover: this.discover, pilot: this.pilot, listener: this.listener };
+    }
 
     public addReference(contextId: string, spinalNode: SpinalNode): SpinalNode {
         const refFound = this.references[contextId];

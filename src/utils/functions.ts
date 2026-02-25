@@ -30,17 +30,18 @@ import axios from "axios";
 const Q = require('q');
 
 export function waitModelReady(): Promise<void> {
-    return new Promise((resolve) => {
-        const wait = () => {
-            if (!FileSystem._sig_server) {
-                setTimeout(wait, 200);
-            } else {
-                resolve();
-            }
-        };
-
-        wait();
-    });
+    const deferred = Q.defer();
+    const WaitModelReadyLoop = (defer) => {
+        if (FileSystem._sig_server === false) {
+            setTimeout(() => {
+                defer.resolve(WaitModelReadyLoop(defer));
+            }, 200);
+        } else {
+            defer.resolve();
+        }
+        return defer.promise;
+    };
+    return WaitModelReadyLoop(deferred);
 }
 
 

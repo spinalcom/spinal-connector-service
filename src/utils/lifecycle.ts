@@ -37,7 +37,6 @@ export function createOrganConfigFile(spinalConnection: spinal.FileSystem, organ
         if (fileName.toLowerCase().endsWith(".conf")) fileName = fileName.replace(/\.conf$/i, ""); // Remove .conf extension if present
 
         spinalConnection.load_or_make_dir(`${folderPath}`, async (directory) => {
-            await waitModelReady();
             const file = new SpinalFile(`${fileName}.conf`.toLowerCase(), organInfo.model, undefined);
             directory.push(file);
             return resolve(organInfo.model as SpinalOrganModel);

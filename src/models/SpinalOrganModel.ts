@@ -65,7 +65,7 @@ class SpinalOrganModel<D extends Model = any, P extends Model = any, L extends M
         });
     }
 
-    getModels(): { discover?: ModelsInfo<D>, pilot?: ModelsInfo<P>, listener?: ModelsInfo<L> } {
+    public getModels(): { discover?: ModelsInfo<D>, pilot?: ModelsInfo<P>, listener?: ModelsInfo<L> } {
         return { discover: this.discover, pilot: this.pilot, listener: this.listener };
     }
 
@@ -141,18 +141,18 @@ class SpinalOrganModel<D extends Model = any, P extends Model = any, L extends M
 
     public getDiscoverModelFromGraph(): Promise<Lst<D> | undefined> {
         if (!this.discover) return Promise.resolve(undefined);
-        return this.discover.getModels();
+        return this.discover.getList();
     }
 
 
     public getPilotModelFromGraph(): Promise<Lst<P> | undefined> {
         if (!this.pilot) return Promise.resolve(undefined);
-        return this.pilot.getModels();
+        return this.pilot.getList();
     }
 
     public getListenerModelFromGraph(): Promise<Lst<L> | undefined> {
         if (!this.listener) return Promise.resolve(undefined);
-        return this.listener.getModels();
+        return this.listener.getList();
     }
 
 

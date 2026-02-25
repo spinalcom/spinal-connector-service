@@ -122,17 +122,17 @@ class SpinalOrganModel extends spinal_core_connectorjs_1.Model {
     getDiscoverModelFromGraph() {
         if (!this.discover)
             return Promise.resolve(undefined);
-        return this.discover.getModels();
+        return this.discover.getList();
     }
     getPilotModelFromGraph() {
         if (!this.pilot)
             return Promise.resolve(undefined);
-        return this.pilot.getModels();
+        return this.pilot.getList();
     }
     getListenerModelFromGraph() {
         if (!this.listener)
             return Promise.resolve(undefined);
-        return this.listener.getModels();
+        return this.listener.getList();
     }
     ////////////// CONSUMERS //////////////
     consumeDiscoverModelFromGraph() {

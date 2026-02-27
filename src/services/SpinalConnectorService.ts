@@ -2,7 +2,8 @@ import { ProcessDescription, restart as pm2Restart } from "pm2";
 import { IConnectorCreation, IConnectorInfo } from "../interfaces";
 import { SpinalOrganModel } from "../models";
 import { DEFAULT_PATH } from "../utils/constants";
-import { createOrganConfigFile, getOrganConfig, getPm2Instance } from "../utils/lifecycle";
+import { createOrganConfigFile, getOrganConfig } from "../utils/lifecycle";
+// import { createOrganConfigFile, getOrganConfig, getPm2Instance } from "../utils/lifecycle";
 
 
 /**
@@ -57,9 +58,10 @@ class SpinalConnectorService {
         this.organConfigModel = organModel;
 
 
-        const instancePm2 = await getPm2Instance(organInfo.name);
+        // const instancePm2 = await getPm2Instance(organInfo.name);
 
-        return { alreadyExists, node: organModel, instancePm2 };
+        return { alreadyExists, node: organModel };
+        // return { alreadyExists, node: organModel, instancePm2 };
     }
 
 
@@ -74,35 +76,35 @@ class SpinalConnectorService {
     }
 
 
-    public getPm2Instance(): Promise<ProcessDescription | undefined> {
-        if (!this._organInfo) return Promise.resolve(undefined);
-        return getPm2Instance(this._organInfo?.name || '');
-    }
+    // public getPm2Instance(): Promise<ProcessDescription | undefined> {
+    //     if (!this._organInfo) return Promise.resolve(undefined);
+    //     return getPm2Instance(this._organInfo?.name || '');
+    // }
 
-    public _bindRestart() {
-        if (!this._organInfo) return;
-        this.organConfigModel?.restart.bind(async () => {
-            const mustRestart = this.organConfigModel?.restart.get();
-            if (mustRestart) await this._restartPm2Instance();
-        });
-    }
+    // public _bindRestart(callback: () => Promise<void>): void {
+    //     if (!this._organInfo) return;
+    //     this.organConfigModel?.restart.bind(async () => {
+    //         const mustRestart = this.organConfigModel?.restart.get();
+    //         if (mustRestart) await callback();
+    //     });
+    // }
 
 
-    private _restartPm2Instance(): Promise<boolean> {
-        return new Promise(async (resolve, reject) => {
-            if (!this._organInfo) return;
-            const pm2Instance = await getPm2Instance(this._organInfo?.name || '');
+    // private _restartPm2Instance(): Promise<boolean> {
+    //     return new Promise(async (resolve, reject) => {
+    //         if (!this._organInfo) return;
+    //         const pm2Instance = await getPm2Instance(this._organInfo?.name || '');
 
-            if (!pm2Instance) return resolve(false);
-            const pm_id = pm2Instance.pm_id as any;
+    //         if (!pm2Instance) return resolve(false);
+    //         const pm_id = pm2Instance.pm_id as any;
 
-            pm2Restart(pm_id, (err) => {
-                if (err) return resolve(false);
-                resolve(true);
-            });
+    //         pm2Restart(pm_id, (err) => {
+    //             if (err) return resolve(false);
+    //             resolve(true);
+    //         });
 
-        });
-    }
+    //     });
+    // }
 
 }
 

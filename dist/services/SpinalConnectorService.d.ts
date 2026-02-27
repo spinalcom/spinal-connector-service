@@ -1,4 +1,3 @@
-import { ProcessDescription } from "pm2";
 import { IConnectorCreation, IConnectorInfo } from "../interfaces";
 import { SpinalOrganModel } from "../models";
 /**
@@ -31,9 +30,6 @@ declare class SpinalConnectorService {
     initialize(connect: spinal.FileSystem, organInfo: IConnectorInfo): Promise<IConnectorCreation>;
     getOrganConfig(): SpinalOrganModel | null;
     checkIfItsSameOrgan(organId: string): boolean;
-    getPm2Instance(): Promise<ProcessDescription | undefined>;
-    _bindRestart(): void;
-    private _restartPm2Instance;
 }
 export default SpinalConnectorService;
 export { SpinalConnectorService };

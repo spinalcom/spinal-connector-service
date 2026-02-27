@@ -3,8 +3,7 @@ import { IConnectorCreation, IConnectorInfo } from "../interfaces";
 import { SpinalOrganModel } from "../models";
 import { DEFAULT_ORGAN_TYPE, DEFAULT_PATH } from "./constants";
 import { File as SpinalFile } from "spinal-core-connectorjs";
-import * as pm2 from "pm2";
-import { waitModelReady } from "./functions";
+// import * as pm2 from "pm2";
 
 
 export function getOrganConfig(spinalConnection: spinal.FileSystem, filePath: string): Promise<SpinalOrganModel | null> {
@@ -46,22 +45,22 @@ export function createOrganConfigFile(spinalConnection: spinal.FileSystem, organ
 
 }
 
-export function getPm2Instance(name: string): Promise<pm2.ProcessDescription | undefined> {
-    return new Promise((resolve, reject) => {
-        pm2.connect((err) => {
-            if (err) return resolve(undefined);
+// export function getPm2Instance(name: string): Promise<pm2.ProcessDescription | undefined> {
+//     return new Promise((resolve, reject) => {
+//         pm2.connect((err) => {
+//             if (err) return resolve(undefined);
 
-            pm2.list((err, apps) => {
-                if (err) {
-                    return resolve(undefined);
-                }
-                const instance = apps.find(app => app.name === name);
-                resolve(instance);
-            });
-        });
+//             pm2.list((err, apps) => {
+//                 if (err) {
+//                     return resolve(undefined);
+//                 }
+//                 const instance = apps.find(app => app.name === name);
+//                 resolve(instance);
+//             });
+//         });
 
-    });
-}
+//     });
+// }
 
 function loadConfigModel(element: spinal.File): Promise<SpinalOrganModel> {
     return new Promise((resolve) => {

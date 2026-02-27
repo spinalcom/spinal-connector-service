@@ -10,9 +10,9 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.SpinalConnectorService = void 0;
-const pm2_1 = require("pm2");
 const constants_1 = require("../utils/constants");
 const lifecycle_1 = require("../utils/lifecycle");
+// import { createOrganConfigFile, getOrganConfig, getPm2Instance } from "../utils/lifecycle";
 /**
  * Singleton service class responsible for managing the lifecycle and configuration
  * of a Spinal Organ within the SpinalCom ecosystem.
@@ -57,8 +57,9 @@ class SpinalConnectorService {
                 organModel = yield (0, lifecycle_1.createOrganConfigFile)(connect, organInfo);
             }
             this.organConfigModel = organModel;
-            const instancePm2 = yield (0, lifecycle_1.getPm2Instance)(organInfo.name);
-            return { alreadyExists, node: organModel, instancePm2 };
+            // const instancePm2 = await getPm2Instance(organInfo.name);
+            return { alreadyExists, node: organModel };
+            // return { alreadyExists, node: organModel, instancePm2 };
         });
     }
     getOrganConfig() {
@@ -68,39 +69,6 @@ class SpinalConnectorService {
         if (!this.organConfigModel)
             return false;
         return this.organConfigModel.id.get() === organId;
-    }
-    getPm2Instance() {
-        var _a;
-        if (!this._organInfo)
-            return Promise.resolve(undefined);
-        return (0, lifecycle_1.getPm2Instance)(((_a = this._organInfo) === null || _a === void 0 ? void 0 : _a.name) || '');
-    }
-    _bindRestart() {
-        var _a;
-        if (!this._organInfo)
-            return;
-        (_a = this.organConfigModel) === null || _a === void 0 ? void 0 : _a.restart.bind(() => __awaiter(this, void 0, void 0, function* () {
-            var _b;
-            const mustRestart = (_b = this.organConfigModel) === null || _b === void 0 ? void 0 : _b.restart.get();
-            if (mustRestart)
-                yield this._restartPm2Instance();
-        }));
-    }
-    _restartPm2Instance() {
-        return new Promise((resolve, reject) => __awaiter(this, void 0, void 0, function* () {
-            var _a;
-            if (!this._organInfo)
-                return;
-            const pm2Instance = yield (0, lifecycle_1.getPm2Instance)(((_a = this._organInfo) === null || _a === void 0 ? void 0 : _a.name) || '');
-            if (!pm2Instance)
-                return resolve(false);
-            const pm_id = pm2Instance.pm_id;
-            (0, pm2_1.restart)(pm_id, (err) => {
-                if (err)
-                    return resolve(false);
-                resolve(true);
-            });
-        }));
     }
 }
 exports.SpinalConnectorService = SpinalConnectorService;

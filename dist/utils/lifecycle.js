@@ -9,11 +9,11 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getPm2Instance = exports.createOrganConfigFile = exports.getOrganConfig = void 0;
+exports.createOrganConfigFile = exports.getOrganConfig = void 0;
 const models_1 = require("../models");
 const constants_1 = require("./constants");
 const spinal_core_connectorjs_1 = require("spinal-core-connectorjs");
-const pm2 = require("pm2");
+// import * as pm2 from "pm2";
 function getOrganConfig(spinalConnection, filePath) {
     return new Promise((resolve) => {
         const { folderPath, fileName } = getFileInfoByPath(filePath);
@@ -52,22 +52,20 @@ function createOrganConfigFile(spinalConnection, organInfo) {
     });
 }
 exports.createOrganConfigFile = createOrganConfigFile;
-function getPm2Instance(name) {
-    return new Promise((resolve, reject) => {
-        pm2.connect((err) => {
-            if (err)
-                return resolve(undefined);
-            pm2.list((err, apps) => {
-                if (err) {
-                    return resolve(undefined);
-                }
-                const instance = apps.find(app => app.name === name);
-                resolve(instance);
-            });
-        });
-    });
-}
-exports.getPm2Instance = getPm2Instance;
+// export function getPm2Instance(name: string): Promise<pm2.ProcessDescription | undefined> {
+//     return new Promise((resolve, reject) => {
+//         pm2.connect((err) => {
+//             if (err) return resolve(undefined);
+//             pm2.list((err, apps) => {
+//                 if (err) {
+//                     return resolve(undefined);
+//                 }
+//                 const instance = apps.find(app => app.name === name);
+//                 resolve(instance);
+//             });
+//         });
+//     });
+// }
 function loadConfigModel(element) {
     return new Promise((resolve) => {
         element.load(organ => resolve(organ));

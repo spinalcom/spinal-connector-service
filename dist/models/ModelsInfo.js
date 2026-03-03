@@ -45,17 +45,17 @@ class ModelsInfo extends spinal_core_connectorjs_1.Model {
         return __awaiter(this, void 0, void 0, function* () {
             const dataList = yield this.getList();
             dataList.push(model);
-            this.length = dataList.length;
+            this.length.set(dataList.length);
             this._debounceChange();
-            return this.length;
+            return this.length.get();
         });
     }
     removeModel(model) {
         return __awaiter(this, void 0, void 0, function* () {
             const dataList = yield this.getList();
             dataList.remove(model);
-            this.length = dataList.length;
-            return this.length;
+            this.length.set(dataList.length);
+            return this.length.get();
         });
     }
     getList() {

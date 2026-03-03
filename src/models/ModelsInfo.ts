@@ -38,16 +38,16 @@ class ModelsInfo<T extends Model = any> extends Model {
     public async addModel(model: T): Promise<number> {
         const dataList = await this.getList();
         dataList.push(model);
-        this.length = dataList.length;
+        this.length.set(dataList.length);
         this._debounceChange();
-        return this.length;
+        return this.length.get();
     }
 
     public async removeModel(model: T): Promise<number> {
         const dataList = await this.getList();
         dataList.remove(model);
-        this.length = dataList.length;
-        return this.length;
+        this.length.set(dataList.length);
+        return this.length.get();
     }
 
 

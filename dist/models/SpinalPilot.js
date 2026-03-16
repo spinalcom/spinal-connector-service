@@ -61,6 +61,12 @@ class SpinalPilot extends spinal_core_connectorjs_1.Model {
             requests: Array.isArray(requests) ? requests : [requests],
         });
     }
+    changeSatte(newState) {
+        if (!constants_1.PILOT_STATES[newState])
+            throw new Error(`${newState} is not a valid state`);
+        const choicesSet = new Set(Object.keys(constants_1.PILOT_STATES));
+        this.state.set(Array.from(choicesSet).indexOf(newState));
+    }
     setInitMode() {
         this.state.set(constants_1.PILOT_STATES.init);
     }

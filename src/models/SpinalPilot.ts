@@ -56,6 +56,13 @@ class SpinalPilot<RequestType> extends Model {
         })
     }
 
+    public changeSatte(newState: keyof typeof PILOT_STATES): void {
+        if (!PILOT_STATES[newState]) throw new Error(`${newState} is not a valid state`);
+
+        const choicesSet = new Set(Object.keys(PILOT_STATES));
+        this.state.set(Array.from(choicesSet).indexOf(newState));
+    }
+
     public setInitMode(): void {
         this.state.set(PILOT_STATES.init);
     }

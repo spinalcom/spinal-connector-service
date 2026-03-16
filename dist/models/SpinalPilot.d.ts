@@ -1,5 +1,6 @@
 import { Model } from "spinal-core-connectorjs";
 import { SpinalNode } from "spinal-env-viewer-graph-service";
+import { PILOT_STATES } from "../utils/constants";
 /**
  * Represents a pilot model that manages the state and association of a pilot process
  * with a specific organ node and a set of requests in the Spinal platform.
@@ -35,6 +36,7 @@ import { SpinalNode } from "spinal-env-viewer-graph-service";
  */
 declare class SpinalPilot<RequestType> extends Model {
     constructor(organ?: SpinalNode, requests?: RequestType | RequestType[]);
+    changeSatte(newState: keyof typeof PILOT_STATES): void;
     setInitMode(): void;
     setProcessMode(): void;
     setSuccessMode(): void;

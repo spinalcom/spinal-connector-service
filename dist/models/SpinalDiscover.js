@@ -81,6 +81,8 @@ class SpinalDiscover extends spinal_core_connectorjs_1.Model {
         return (0, functions_1.loadPtr)(this.context);
     }
     changeState(state) {
+        if (!constants_1.STATES[state])
+            throw new Error(`${state} is not a valid state`);
         const choicesSet = new Set(Object.keys(constants_1.STATES));
         this.state.set(Array.from(choicesSet).indexOf(state));
     }

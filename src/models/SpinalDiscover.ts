@@ -76,6 +76,8 @@ class SpinalDiscover extends Model {
     }
 
     public changeState(state: keyof typeof STATES) {
+        if (!STATES[state]) throw new Error(`${state} is not a valid state`);
+
         const choicesSet = new Set(Object.keys(STATES));
         this.state.set(Array.from(choicesSet).indexOf(state));
     }

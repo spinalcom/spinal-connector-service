@@ -36,7 +36,7 @@ import { PILOT_STATES } from "../utils/constants";
  */
 declare class SpinalPilot<RequestType> extends Model {
     constructor(organ?: SpinalNode, requests?: RequestType | RequestType[]);
-    changeSatte(newState: keyof typeof PILOT_STATES): void;
+    changeState(newState: keyof typeof PILOT_STATES): void;
     setInitMode(): void;
     setProcessMode(): void;
     setSuccessMode(): void;

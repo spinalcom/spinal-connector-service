@@ -61,23 +61,23 @@ class SpinalPilot extends spinal_core_connectorjs_1.Model {
             requests: Array.isArray(requests) ? requests : [requests],
         });
     }
-    changeSatte(newState) {
+    changeState(newState) {
         if (!constants_1.PILOT_STATES[newState])
             throw new Error(`${newState} is not a valid state`);
         const choicesSet = new Set(Object.keys(constants_1.PILOT_STATES));
         this.state.set(Array.from(choicesSet).indexOf(newState));
     }
     setInitMode() {
-        this.state.set(constants_1.PILOT_STATES.init);
+        this.changeState(constants_1.PILOT_STATES.init);
     }
     setProcessMode() {
-        this.state.set(constants_1.PILOT_STATES.processing);
+        this.changeState(constants_1.PILOT_STATES.processing);
     }
     setSuccessMode() {
-        this.state.set(constants_1.PILOT_STATES.success);
+        this.changeState(constants_1.PILOT_STATES.success);
     }
     setErrorMode() {
-        this.state.set(constants_1.PILOT_STATES.error);
+        this.changeState(constants_1.PILOT_STATES.error);
     }
     getOrgan() {
         return (0, functions_1.loadPtr)(this.organ);

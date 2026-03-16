@@ -56,7 +56,7 @@ class SpinalPilot<RequestType> extends Model {
         })
     }
 
-    public changeSatte(newState: keyof typeof PILOT_STATES): void {
+    public changeState(newState: keyof typeof PILOT_STATES): void {
         if (!PILOT_STATES[newState]) throw new Error(`${newState} is not a valid state`);
 
         const choicesSet = new Set(Object.keys(PILOT_STATES));
@@ -64,19 +64,19 @@ class SpinalPilot<RequestType> extends Model {
     }
 
     public setInitMode(): void {
-        this.state.set(PILOT_STATES.init);
+        this.changeState(PILOT_STATES.init);
     }
 
     public setProcessMode(): void {
-        this.state.set(PILOT_STATES.processing);
+        this.changeState(PILOT_STATES.processing);
     }
 
     public setSuccessMode(): void {
-        this.state.set(PILOT_STATES.success);
+        this.changeState(PILOT_STATES.success);
     }
 
     public setErrorMode(): void {
-        this.state.set(PILOT_STATES.error);
+        this.changeState(PILOT_STATES.error);
     }
 
     public getOrgan(): Promise<SpinalNode> {

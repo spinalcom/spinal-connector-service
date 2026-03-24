@@ -46,12 +46,14 @@ export class SpinalQueue<T> extends EventEmitter {
     public percent: number = 0;
     public isProcessing: boolean = false;
     public startDebounce: number = 3000;
+    public autoStart: boolean = true;
 
     private debounceStart: lodash.DebouncedFunc<() => void>;
 
-    constructor(startDebounce: number = 3000) {
+    constructor(startDebounce: number = 3000, autoStart: boolean = true) {
         super();
         this.startDebounce = startDebounce;
+        this.autoStart = autoStart;
 
         this.debounceStart = lodash.debounce(this.start.bind(this), this.startDebounce);
     }
@@ -73,7 +75,7 @@ export class SpinalQueue<T> extends EventEmitter {
         if (!Array.isArray(item)) item = [item];
 
         this.queueList.push(...item);
-        this.debounceStart();
+        if (this.autoStart) this.debounceStart();
         return this.queueList.length;
     }
 
@@ -90,7 +92,7 @@ export class SpinalQueue<T> extends EventEmitter {
         this.queueList = queue;
         this.recalculatePercent(undefined);
 
-        this.debounceStart();
+        if (this.autoStart) this.debounceStart();
         return this.queueList.length;
     }
 

@@ -41,14 +41,16 @@ const constants_1 = require("../utils/constants");
  *
  */
 class SpinalQueue extends events_1.EventEmitter {
-    constructor(startDebounce = 3000) {
+    constructor(startDebounce = 3000, autoStart = true) {
         super();
         this.processed = []; // List of processed items, used to calculate the percentage of completion
         this.queueList = [];
         this.percent = 0;
         this.isProcessing = false;
         this.startDebounce = 3000;
+        this.autoStart = true;
         this.startDebounce = startDebounce;
+        this.autoStart = autoStart;
         this.debounceStart = lodash.debounce(this.start.bind(this), this.startDebounce);
     }
     start() {
@@ -67,7 +69,8 @@ class SpinalQueue extends events_1.EventEmitter {
         if (!Array.isArray(item))
             item = [item];
         this.queueList.push(...item);
-        this.debounceStart();
+        if (this.autoStart)
+            this.debounceStart();
         return this.queueList.length;
     }
     /**
@@ -81,7 +84,8 @@ class SpinalQueue extends events_1.EventEmitter {
         this.clear();
         this.queueList = queue;
         this.recalculatePercent(undefined);
-        this.debounceStart();
+        if (this.autoStart)
+            this.debounceStart();
         return this.queueList.length;
     }
     /**

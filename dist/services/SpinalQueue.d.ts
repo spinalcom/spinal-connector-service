@@ -42,8 +42,9 @@ export declare class SpinalQueue<T> extends EventEmitter {
     percent: number;
     isProcessing: boolean;
     startDebounce: number;
+    autoStart: boolean;
     private debounceStart;
-    constructor(startDebounce?: number);
+    constructor(startDebounce?: number, autoStart?: boolean);
     start(): void;
     /**
      * Adds one or more items to the queue and triggers debounced start.

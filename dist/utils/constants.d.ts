@@ -1,5 +1,6 @@
 export declare const DEFAULT_ORGAN_TYPE = "SPINAL_ORGAN";
 export declare const DEFAULT_PATH = "/etc/Organs";
+export declare const CONTEXT_TO_ORGAN_RELATION = "hasBmsNetworkOrgan";
 export declare const QueueEvents: {
     readonly FINISH: "finish";
     readonly START: "start";

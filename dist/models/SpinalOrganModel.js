@@ -1,10 +1,21 @@
 "use strict";
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.SpinalOrganModel = void 0;
 const spinal_core_connectorjs_1 = require("spinal-core-connectorjs");
 const constants_1 = require("../utils/constants");
 const uuid_1 = require("uuid");
+const spinal_model_graph_1 = require("spinal-model-graph");
 const ModelsInfo_1 = require("./ModelsInfo");
+const functions_1 = require("../utils/functions");
 /**
  * Represents an Organ model in the Spinal framework, managing references and collections of models
  * for discovery, pilot, and listener functionalities. This class extends the base `Model` class and
@@ -64,15 +75,42 @@ class SpinalOrganModel extends spinal_core_connectorjs_1.Model {
     getModels() {
         return { discover: this.discover, pilot: this.pilot, listener: this.listener };
     }
+    linkOrganToContext(context) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const contextId = context.getId().get();
+            if (this.isReferencedInContext(contextId))
+                throw new Error(`Organ is already referenced in context`);
+            const node = new spinal_model_graph_1.SpinalNode(this.name.get(), this.type.get(), this);
+            return context.addChildInContext(node, constants_1.CONTEXT_TO_ORGAN_RELATION, spinal_model_graph_1.SPINAL_RELATION_PTR_LST_TYPE, context)
+                .then(() => {
+                this.addReference(contextId, node);
+                return true;
+            });
+        });
+    }
+    unlinkOrganFromContext(context) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const contextId = context.getId().get();
+            if (!this.isReferencedInContext(contextId))
+                throw new Error(`Organ is not referenced in context`);
+            const node = yield (0, functions_1.loadPtr)(this.references[contextId]);
+            if (!node)
+                throw new Error(`Referenced node not found in graph`);
+            return context.removeChild(node, constants_1.CONTEXT_TO_ORGAN_RELATION, spinal_model_graph_1.SPINAL_RELATION_PTR_LST_TYPE).then((result) => {
+                this.removeReference(contextId);
+                return true;
+            });
+        });
+    }
+    isReferencedInContext(contextId) {
+        return typeof this.references[contextId] !== "undefined";
+    }
     addReference(contextId, spinalNode) {
         const refFound = this.references[contextId];
         if (refFound)
             this.references.rem_attr(contextId);
         this.references.add_attr({ [contextId]: new spinal_core_connectorjs_1.Ptr(spinalNode) });
         return spinalNode;
-    }
-    isReferencedInContext(contextId) {
-        return typeof this.references[contextId] !== "undefined";
     }
     removeReference(contextId) {
         if (this.isReferencedInContext(contextId))

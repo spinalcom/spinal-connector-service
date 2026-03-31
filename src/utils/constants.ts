@@ -24,7 +24,7 @@
 
 export const DEFAULT_ORGAN_TYPE = "SPINAL_ORGAN";
 export const DEFAULT_PATH = "/etc/Organs";
-
+export const CONTEXT_TO_ORGAN_RELATION = "hasBmsNetworkOrgan"
 
 export const QueueEvents = {
     FINISH: "finish",

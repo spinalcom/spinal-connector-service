@@ -1,7 +1,7 @@
 import { Lst, Model, Ptr, spinalCore } from "spinal-core-connectorjs";
-import { DEFAULT_ORGAN_TYPE } from "../utils/constants";
+import { CONTEXT_TO_ORGAN_RELATION, DEFAULT_ORGAN_TYPE } from "../utils/constants";
 import { v4 as uuidv4 } from "uuid";
-import { SpinalNode } from "spinal-env-viewer-graph-service";
+import { SpinalNode, SPINAL_RELATION_PTR_LST_TYPE, SpinalContext } from "spinal-model-graph";
 import ModelsInfo from "./ModelsInfo";
 import { loadPtr } from "../utils/functions";
 
@@ -69,12 +69,34 @@ class SpinalOrganModel<D extends Model = any, P extends Model = any, L extends M
         return { discover: this.discover, pilot: this.pilot, listener: this.listener };
     }
 
-    public addReference(contextId: string, spinalNode: SpinalNode): SpinalNode {
-        const refFound = this.references[contextId];
-        if (refFound) this.references.rem_attr(contextId);
 
-        this.references.add_attr({ [contextId]: new Ptr(spinalNode) });
-        return spinalNode;
+    public async linkOrganToContext(context: SpinalContext): Promise<boolean> {
+        const contextId = context.getId().get();
+        if (this.isReferencedInContext(contextId)) throw new Error(`Organ is already referenced in context`);
+
+        const node = new SpinalNode(this.name.get(), this.type.get(), this as any);
+
+        return context.addChildInContext(node, CONTEXT_TO_ORGAN_RELATION, SPINAL_RELATION_PTR_LST_TYPE, context)
+            .then(() => {
+                this.addReference(contextId, node);
+                return true;
+            });
+
+    }
+
+    public async unlinkOrganFromContext(context: SpinalContext): Promise<boolean> {
+        const contextId = context.getId().get();
+
+        if (!this.isReferencedInContext(contextId)) throw new Error(`Organ is not referenced in context`);
+        const node = await loadPtr(this.references[contextId]) as SpinalNode;
+
+        if (!node) throw new Error(`Referenced node not found in graph`);
+
+        return context.removeChild(node, CONTEXT_TO_ORGAN_RELATION, SPINAL_RELATION_PTR_LST_TYPE).then((result) => {
+            this.removeReference(contextId);
+            return true;
+        });
+
     }
 
 
@@ -82,6 +104,14 @@ class SpinalOrganModel<D extends Model = any, P extends Model = any, L extends M
         return typeof this.references[contextId] !== "undefined";
     }
 
+
+    public addReference(contextId: string, spinalNode: SpinalNode): SpinalNode {
+        const refFound = this.references[contextId];
+        if (refFound) this.references.rem_attr(contextId);
+
+        this.references.add_attr({ [contextId]: new Ptr(spinalNode) });
+        return spinalNode;
+    }
 
     public removeReference(contextId: string): void {
         if (this.isReferencedInContext(contextId)) this.references.rem_attr(contextId);

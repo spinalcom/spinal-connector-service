@@ -1,5 +1,5 @@
 import { Lst, Model } from "spinal-core-connectorjs";
-import { SpinalNode } from "spinal-env-viewer-graph-service";
+import { SpinalNode, SpinalContext } from "spinal-model-graph";
 import ModelsInfo from "./ModelsInfo";
 /**
  * Represents an Organ model in the Spinal framework, managing references and collections of models
@@ -48,8 +48,10 @@ declare class SpinalOrganModel<D extends Model = any, P extends Model = any, L e
         pilot?: ModelsInfo<P>;
         listener?: ModelsInfo<L>;
     };
-    addReference(contextId: string, spinalNode: SpinalNode): SpinalNode;
+    linkOrganToContext(context: SpinalContext): Promise<boolean>;
+    unlinkOrganFromContext(context: SpinalContext): Promise<boolean>;
     isReferencedInContext(contextId: string): boolean;
+    addReference(contextId: string, spinalNode: SpinalNode): SpinalNode;
     removeReference(contextId: string): void;
     initializeModelsList(): void;
     addDiscoverModelToGraph(discoverModel: D): Promise<number>;

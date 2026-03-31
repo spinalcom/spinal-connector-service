@@ -23,9 +23,10 @@
  * <http://resources.spinalcom.com/licenses.pdf>.
  */
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.PILOT_STATES = exports.STATES = exports.QueueEvents = exports.DEFAULT_PATH = exports.DEFAULT_ORGAN_TYPE = void 0;
+exports.PILOT_STATES = exports.STATES = exports.QueueEvents = exports.CONTEXT_TO_ORGAN_RELATION = exports.DEFAULT_PATH = exports.DEFAULT_ORGAN_TYPE = void 0;
 exports.DEFAULT_ORGAN_TYPE = "SPINAL_ORGAN";
 exports.DEFAULT_PATH = "/etc/Organs";
+exports.CONTEXT_TO_ORGAN_RELATION = "hasBmsNetworkOrgan";
 exports.QueueEvents = {
     FINISH: "finish",
     START: "start",

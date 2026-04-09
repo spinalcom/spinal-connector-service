@@ -53,6 +53,9 @@ class SpinalQueue extends events_1.EventEmitter {
         this.autoStart = autoStart;
         this.debounceStart = lodash.debounce(this.start.bind(this), this.startDebounce);
     }
+    get length() {
+        return this.queueList.length;
+    }
     start() {
         if (!this.isProcessing) {
             this.isProcessing = true;

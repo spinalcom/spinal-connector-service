@@ -58,6 +58,10 @@ export class SpinalQueue<T> extends EventEmitter {
         this.debounceStart = lodash.debounce(this.start.bind(this), this.startDebounce);
     }
 
+    get length(): number {
+        return this.queueList.length;
+    }
+
     public start() {
         if (!this.isProcessing) {
             this.isProcessing = true;

@@ -3,6 +3,7 @@
 	"version": "2.3.1",
 	"description": "",
 	"main": "dist/index.js",
+	"types": "./declarations/index.d.ts",
 	"scripts": {
 		"build": "rm -fr dist && tsc",
 		"dev": "rm -fr dist && tsc --watch & nodemon dist"

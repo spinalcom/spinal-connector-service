@@ -12,7 +12,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.SpinalOrganModel = void 0;
 const spinal_core_connectorjs_1 = require("spinal-core-connectorjs");
 const constants_1 = require("../utils/constants");
-const uuid_1 = require("uuid");
+// import { v4 as uuidv4 } from "uuid";
 const spinal_model_graph_1 = require("spinal-model-graph");
 const ModelsInfo_1 = require("./ModelsInfo");
 const functions_1 = require("../utils/functions");
@@ -62,14 +62,14 @@ class SpinalOrganModel extends spinal_core_connectorjs_1.Model {
         if (!type || !name)
             return;
         this.add_attr({
-            id: (0, uuid_1.v4)(),
+            id: (0, functions_1.guid)("SpinalOrganModel"),
             name: name,
             type: type,
             references: {},
             restart: false,
             discover: new ModelsInfo_1.default(),
             pilot: new ModelsInfo_1.default(),
-            listener: new ModelsInfo_1.default()
+            listener: new ModelsInfo_1.default(),
         });
     }
     getModels() {
@@ -81,8 +81,7 @@ class SpinalOrganModel extends spinal_core_connectorjs_1.Model {
             if (this.isReferencedInContext(contextId))
                 throw new Error(`Organ is already referenced in context`);
             const node = new spinal_model_graph_1.SpinalNode(this.name.get(), this.type.get(), this);
-            return context.addChildInContext(node, constants_1.CONTEXT_TO_ORGAN_RELATION, spinal_model_graph_1.SPINAL_RELATION_PTR_LST_TYPE, context)
-                .then(() => {
+            return context.addChildInContext(node, constants_1.CONTEXT_TO_ORGAN_RELATION, spinal_model_graph_1.SPINAL_RELATION_PTR_LST_TYPE, context).then(() => {
                 this.addReference(contextId, node);
                 return true;
             });
@@ -93,7 +92,7 @@ class SpinalOrganModel extends spinal_core_connectorjs_1.Model {
             const contextId = context.getId().get();
             if (!this.isReferencedInContext(contextId))
                 throw new Error(`Organ is not referenced in context`);
-            const node = yield (0, functions_1.loadPtr)(this.references[contextId]);
+            const node = (yield (0, functions_1.loadPtr)(this.references[contextId]));
             if (!node)
                 throw new Error(`Referenced node not found in graph`);
             return context.removeChild(node, constants_1.CONTEXT_TO_ORGAN_RELATION, spinal_model_graph_1.SPINAL_RELATION_PTR_LST_TYPE).then((result) => {

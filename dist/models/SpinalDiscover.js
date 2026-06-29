@@ -11,7 +11,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.SpinalDiscover = void 0;
 const spinal_core_connectorjs_1 = require("spinal-core-connectorjs");
-const uuid_1 = require("uuid");
+// import { v4 as uuidv4 } from "uuid";
 const constants_1 = require("../utils/constants");
 const functions_1 = require("../utils/functions");
 const gzip = require("node-gzip");
@@ -59,7 +59,7 @@ class SpinalDiscover extends spinal_core_connectorjs_1.Model {
             return;
         const choicesSet = new Set(Object.keys(constants_1.STATES));
         this.add_attr({
-            id: (0, uuid_1.v4)(),
+            id: (0, functions_1.guid)("SpinalDiscover"),
             graph: graph && new spinal_core_connectorjs_1.Pbr(graph),
             context: context && new spinal_core_connectorjs_1.Pbr(context),
             organ: organ && new spinal_core_connectorjs_1.Pbr(organ),

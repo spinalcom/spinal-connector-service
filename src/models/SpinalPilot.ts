@@ -1,8 +1,8 @@
 import { Choice, Lst, Model, Pbr, Ptr, spinalCore } from "spinal-core-connectorjs";
 import { SpinalNode } from "spinal-env-viewer-graph-service";
-import { v4 as uuidv4 } from "uuid";
+// import { v4 as uuidv4 } from "uuid";
 import { PILOT_STATES } from "../utils/constants";
-import { loadPtr } from "../utils/functions";
+import { guid, loadPtr } from "../utils/functions";
 import ModelsInfo from "./ModelsInfo";
 import SpinalOrganModel from "./SpinalOrganModel";
 
@@ -47,7 +47,7 @@ class SpinalPilot<RequestType> extends Model {
 		const choicesSet = new Set(Object.keys(PILOT_STATES));
 
 		this.add_attr({
-			id: uuidv4(),
+			id: guid("SpinalPilot"),
 			state: new Choice(0, Array.from(choicesSet)),
 			creation: Date.now(),
 			organ: new Pbr(organ),

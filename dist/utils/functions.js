@@ -23,25 +23,23 @@
  * <http://resources.spinalcom.com/licenses.pdf>.
  */
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.loadPtr = exports.getPathData = exports.s4 = exports.guid = exports.waitModelReady = void 0;
+exports.generateUniqueId = exports.loadPtr = exports.getPathData = exports.s4 = exports.guid = exports.waitModelReady = void 0;
 const spinal_core_connectorjs_type_1 = require("spinal-core-connectorjs_type");
 const axios_retry_1 = require("axios-retry");
 const axios_1 = require("axios");
-const Q = require('q');
+// im;
+// const Q = require("q");
 function waitModelReady() {
-    const deferred = Q.defer();
-    const WaitModelReadyLoop = (defer) => {
-        if (spinal_core_connectorjs_type_1.FileSystem._sig_server === false) {
-            setTimeout(() => {
-                defer.resolve(WaitModelReadyLoop(defer));
-            }, 200);
-        }
-        else {
-            defer.resolve();
-        }
-        return defer.promise;
-    };
-    return WaitModelReadyLoop(deferred);
+    return new Promise((resolve) => {
+        const waitModelReadyLoop = () => {
+            if (spinal_core_connectorjs_type_1.FileSystem._sig_server === false) {
+                setTimeout(waitModelReadyLoop, 200);
+                return;
+            }
+            resolve();
+        };
+        waitModelReadyLoop();
+    });
 }
 exports.waitModelReady = waitModelReady;
 function guid(name) {
@@ -58,7 +56,7 @@ function getPathData(dynamicId, hubUrl = "") {
     const path = `${hubUrl}/sceen/_?u=${dynamicId}`;
     const client = axios_1.default.create({ baseURL: hubUrl });
     (0, axios_retry_1.default)(client, { retries: 3, retryDelay: axios_retry_1.default.exponentialDelay });
-    return client.get(path, { responseType: 'arraybuffer' }).then((response) => {
+    return client.get(path, { responseType: "arraybuffer" }).then((response) => {
         // return Buffer.from(response.data);
         return new Uint8Array(response.data);
     });
@@ -75,4 +73,12 @@ function loadPtr(ptr) {
     });
 }
 exports.loadPtr = loadPtr;
+function generateUniqueId() {
+    return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, (char) => {
+        const random = (Math.random() * 16) | 0;
+        const value = char === "x" ? random : (random & 0x3) | 0x8;
+        return value.toString(16);
+    });
+}
+exports.generateUniqueId = generateUniqueId;
 //# sourceMappingURL=functions.js.map

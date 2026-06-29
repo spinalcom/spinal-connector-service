@@ -1,9 +1,9 @@
 import { Choice, Model, Pbr, Ptr, spinalCore, Path as SpinalPath } from "spinal-core-connectorjs";
 import { SpinalContext, SpinalGraph, SpinalNode } from "spinal-env-viewer-graph-service";
-import { v4 as uuidv4 } from "uuid";
+// import { v4 as uuidv4 } from "uuid";
 import { STATES } from "../utils/constants";
 import ModelsInfo from "./ModelsInfo";
-import { getPathData, loadPtr } from "../utils/functions";
+import { getPathData, guid, loadPtr } from "../utils/functions";
 import * as gzip from "node-gzip";
 
 /**
@@ -51,7 +51,7 @@ class SpinalDiscover extends Model {
 		const choicesSet = new Set(Object.keys(STATES));
 
 		this.add_attr({
-			id: uuidv4(),
+			id: guid("SpinalDiscover"),
 			graph: graph && new Pbr(graph),
 			context: context && new Pbr(context),
 			organ: organ && new Pbr(organ),

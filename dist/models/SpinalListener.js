@@ -11,7 +11,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.SpinalListener = void 0;
 const spinal_core_connectorjs_1 = require("spinal-core-connectorjs");
-const uuid_1 = require("uuid");
+// import { v4 as uuidv4 } from "uuid";
 const functions_1 = require("../utils/functions");
 /**
  * Represents a listener model within the Spinal platform, responsible for monitoring and managing
@@ -45,7 +45,7 @@ class SpinalListener extends spinal_core_connectorjs_1.Model {
         if (!graph || !context || !organ || !network || !bmsDevice || !profile)
             return;
         this.add_attr({
-            id: (0, uuid_1.v4)(),
+            id: (0, functions_1.guid)("SpinalListener"),
             monitored: true,
             network: new spinal_core_connectorjs_1.Pbr(network),
             organ: new spinal_core_connectorjs_1.Pbr(organ),

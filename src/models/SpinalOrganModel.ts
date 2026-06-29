@@ -1,11 +1,9 @@
 import { Lst, Model, Ptr, spinalCore } from "spinal-core-connectorjs";
 import { CONTEXT_TO_ORGAN_RELATION, DEFAULT_ORGAN_TYPE } from "../utils/constants";
-import { v4 as uuidv4 } from "uuid";
+// import { v4 as uuidv4 } from "uuid";
 import { SpinalNode, SPINAL_RELATION_PTR_LST_TYPE, SpinalContext } from "spinal-model-graph";
 import ModelsInfo from "./ModelsInfo";
-import { loadPtr } from "../utils/functions";
-
-
+import { guid, loadPtr } from "../utils/functions";
 
 /**
  * Represents an Organ model in the Spinal framework, managing references and collections of models
@@ -28,7 +26,7 @@ import { loadPtr } from "../utils/functions";
  * const organ = new SpinalOrganModel<MyDiscoverModel, MyPilotModel, MyListenerModel>('MyOrgan', 'customType');
  * await organ.addDiscoverModelToGraph(new MyDiscoverModel());
  * ```
- * 
+ *
  * @method addReference(contextId: string, spinalNode: SpinalNode): SpinalNode - Adds a reference to a context.
  * @method isReferencedInContext(contextId: string): boolean - Checks if the organ is referenced in a specific context.
  * @method removeReference(contextId: string): void - Removes a reference to a context.
@@ -44,169 +42,147 @@ import { loadPtr } from "../utils/functions";
  * @method consumeDiscoverModelFromGraph(): Promise<D[]> - Consumes and retrieves all discover models from the graph.
  * @method consumePilotModelFromGraph(): Promise<P[]> - Consumes and retrieves all pilot models from the graph.
  * @method consumeListenerModelFromGraph(): Promise<L[]> - Consumes and retrieves all listener models from the graph.
- * 
+ *
  * @see {@link ModelsInfo} for managing collections of models.
  */
 class SpinalOrganModel<D extends Model = any, P extends Model = any, L extends Model = any> extends Model {
+	constructor(name?: string, type: string = DEFAULT_ORGAN_TYPE) {
+		super();
 
-    constructor(name?: string, type: string = DEFAULT_ORGAN_TYPE) {
-        super();
+		if (!type || !name) return;
+		this.add_attr({
+			id: guid("SpinalOrganModel"),
+			name: name,
+			type: type,
+			references: {},
+			restart: false,
+			discover: new ModelsInfo<D>(),
+			pilot: new ModelsInfo<P>(),
+			listener: new ModelsInfo<L>(),
+		});
+	}
 
-        if (!type || !name) return;
-        this.add_attr({
-            id: uuidv4(),
-            name: name,
-            type: type,
-            references: {},
-            restart: false,
-            discover: new ModelsInfo<D>(),
-            pilot: new ModelsInfo<P>(),
-            listener: new ModelsInfo<L>()
-        });
-    }
+	public getModels(): { discover?: ModelsInfo<D>; pilot?: ModelsInfo<P>; listener?: ModelsInfo<L> } {
+		return { discover: this.discover, pilot: this.pilot, listener: this.listener };
+	}
 
-    public getModels(): { discover?: ModelsInfo<D>, pilot?: ModelsInfo<P>, listener?: ModelsInfo<L> } {
-        return { discover: this.discover, pilot: this.pilot, listener: this.listener };
-    }
+	public async linkOrganToContext(context: SpinalContext): Promise<boolean> {
+		const contextId = context.getId().get();
+		if (this.isReferencedInContext(contextId)) throw new Error(`Organ is already referenced in context`);
 
+		const node = new SpinalNode(this.name.get(), this.type.get(), this as any);
 
-    public async linkOrganToContext(context: SpinalContext): Promise<boolean> {
-        const contextId = context.getId().get();
-        if (this.isReferencedInContext(contextId)) throw new Error(`Organ is already referenced in context`);
+		return context.addChildInContext(node, CONTEXT_TO_ORGAN_RELATION, SPINAL_RELATION_PTR_LST_TYPE, context).then(() => {
+			this.addReference(contextId, node);
+			return true;
+		});
+	}
 
-        const node = new SpinalNode(this.name.get(), this.type.get(), this as any);
+	public async unlinkOrganFromContext(context: SpinalContext): Promise<boolean> {
+		const contextId = context.getId().get();
 
-        return context.addChildInContext(node, CONTEXT_TO_ORGAN_RELATION, SPINAL_RELATION_PTR_LST_TYPE, context)
-            .then(() => {
-                this.addReference(contextId, node);
-                return true;
-            });
+		if (!this.isReferencedInContext(contextId)) throw new Error(`Organ is not referenced in context`);
+		const node = (await loadPtr(this.references[contextId])) as SpinalNode;
 
-    }
+		if (!node) throw new Error(`Referenced node not found in graph`);
 
-    public async unlinkOrganFromContext(context: SpinalContext): Promise<boolean> {
-        const contextId = context.getId().get();
+		return context.removeChild(node, CONTEXT_TO_ORGAN_RELATION, SPINAL_RELATION_PTR_LST_TYPE).then((result) => {
+			this.removeReference(contextId);
+			return true;
+		});
+	}
 
-        if (!this.isReferencedInContext(contextId)) throw new Error(`Organ is not referenced in context`);
-        const node = await loadPtr(this.references[contextId]) as SpinalNode;
+	public isReferencedInContext(contextId: string): boolean {
+		return typeof this.references[contextId] !== "undefined";
+	}
 
-        if (!node) throw new Error(`Referenced node not found in graph`);
+	public addReference(contextId: string, spinalNode: SpinalNode): SpinalNode {
+		const refFound = this.references[contextId];
+		if (refFound) this.references.rem_attr(contextId);
 
-        return context.removeChild(node, CONTEXT_TO_ORGAN_RELATION, SPINAL_RELATION_PTR_LST_TYPE).then((result) => {
-            this.removeReference(contextId);
-            return true;
-        });
+		this.references.add_attr({ [contextId]: new Ptr(spinalNode) });
+		return spinalNode;
+	}
 
-    }
+	public removeReference(contextId: string): void {
+		if (this.isReferencedInContext(contextId)) this.references.rem_attr(contextId);
+	}
 
+	public initializeModelsList() {
+		if (!this.discover) this.add_attr({ discover: new ModelsInfo<D>() });
+		if (!this.pilot) this.add_attr({ pilot: new ModelsInfo<P>() });
+		if (!this.listener) this.add_attr({ listener: new ModelsInfo<L>() });
+	}
 
-    public isReferencedInContext(contextId: string): boolean {
-        return typeof this.references[contextId] !== "undefined";
-    }
+	////////////// ADD MODELS //////////////
 
+	public addDiscoverModelToGraph(discoverModel: D): Promise<number> {
+		if (!this.discover) this.add_attr({ discover: new ModelsInfo<D>() });
+		return this.discover.addModel(discoverModel);
+	}
 
-    public addReference(contextId: string, spinalNode: SpinalNode): SpinalNode {
-        const refFound = this.references[contextId];
-        if (refFound) this.references.rem_attr(contextId);
+	public addPilotModelToGraph(pilotModel: P): Promise<number> {
+		if (!this.pilot) this.add_attr({ pilot: new ModelsInfo<P>() });
+		return this.pilot.addModel(pilotModel);
+	}
 
-        this.references.add_attr({ [contextId]: new Ptr(spinalNode) });
-        return spinalNode;
-    }
+	public addListenerModelToGraph(listenerModel: L): Promise<number> {
+		if (!this.listener) this.add_attr({ listener: new ModelsInfo<L>() });
+		return this.listener.addModel(listenerModel);
+	}
 
-    public removeReference(contextId: string): void {
-        if (this.isReferencedInContext(contextId)) this.references.rem_attr(contextId);
-    }
+	////////////// REMOVE MODELS //////////////
 
+	public removeDiscoverModelFromGraph(discoverModel: D): Promise<boolean> {
+		if (this.discover) return this.discover.removeModel(discoverModel);
+		return Promise.resolve(false);
+	}
 
+	public removePilotModelFromGraph(pilotModel: P): Promise<boolean> {
+		if (this.pilot) return this.pilot.removeModel(pilotModel);
+		return Promise.resolve(false);
+	}
 
-    public initializeModelsList() {
-        if (!this.discover) this.add_attr({ discover: new ModelsInfo<D>() });
-        if (!this.pilot) this.add_attr({ pilot: new ModelsInfo<P>() });
-        if (!this.listener) this.add_attr({ listener: new ModelsInfo<L>() });
-    }
+	public removeListenerModelFromGraph(listenerModel: L): Promise<boolean> {
+		if (this.listener) return this.listener.removeModel(listenerModel);
+		return Promise.resolve(false);
+	}
 
+	////////////// GETTERS //////////////
 
-    ////////////// ADD MODELS //////////////
+	public getDiscoverModelFromGraph(): Promise<Lst<D> | undefined> {
+		if (!this.discover) return Promise.resolve(undefined);
+		return this.discover.getList();
+	}
 
-    public addDiscoverModelToGraph(discoverModel: D): Promise<number> {
-        if (!this.discover) this.add_attr({ discover: new ModelsInfo<D>() });
-        return this.discover.addModel(discoverModel);
-    }
+	public getPilotModelFromGraph(): Promise<Lst<P> | undefined> {
+		if (!this.pilot) return Promise.resolve(undefined);
+		return this.pilot.getList();
+	}
 
+	public getListenerModelFromGraph(): Promise<Lst<L> | undefined> {
+		if (!this.listener) return Promise.resolve(undefined);
+		return this.listener.getList();
+	}
 
+	////////////// CONSUMERS //////////////
 
-    public addPilotModelToGraph(pilotModel: P): Promise<number> {
-        if (!this.pilot) this.add_attr({ pilot: new ModelsInfo<P>() });
-        return this.pilot.addModel(pilotModel);
-    }
+	public consumeDiscoverModelFromGraph(): Promise<D[]> {
+		if (!this.discover) return Promise.resolve([]);
+		return this.discover.consumeModels();
+	}
 
-    public addListenerModelToGraph(listenerModel: L): Promise<number> {
-        if (!this.listener) this.add_attr({ listener: new ModelsInfo<L>() });
-        return this.listener.addModel(listenerModel);
-    }
+	public consumePilotModelFromGraph(): Promise<P[]> {
+		if (!this.pilot) return Promise.resolve([]);
+		return this.pilot.consumeModels();
+	}
 
-
-    ////////////// REMOVE MODELS //////////////
-
-    public removeDiscoverModelFromGraph(discoverModel: D): Promise<boolean> {
-        if (this.discover) return this.discover.removeModel(discoverModel);
-        return Promise.resolve(false);
-    }
-
-
-
-    public removePilotModelFromGraph(pilotModel: P): Promise<boolean> {
-        if (this.pilot) return this.pilot.removeModel(pilotModel);
-        return Promise.resolve(false);
-    }
-
-
-    public removeListenerModelFromGraph(listenerModel: L): Promise<boolean> {
-        if (this.listener) return this.listener.removeModel(listenerModel);
-        return Promise.resolve(false);
-    }
-
-    ////////////// GETTERS //////////////
-
-
-    public getDiscoverModelFromGraph(): Promise<Lst<D> | undefined> {
-        if (!this.discover) return Promise.resolve(undefined);
-        return this.discover.getList();
-    }
-
-
-    public getPilotModelFromGraph(): Promise<Lst<P> | undefined> {
-        if (!this.pilot) return Promise.resolve(undefined);
-        return this.pilot.getList();
-    }
-
-    public getListenerModelFromGraph(): Promise<Lst<L> | undefined> {
-        if (!this.listener) return Promise.resolve(undefined);
-        return this.listener.getList();
-    }
-
-
-    ////////////// CONSUMERS //////////////
-
-    public consumeDiscoverModelFromGraph(): Promise<D[]> {
-        if (!this.discover) return Promise.resolve([]);
-        return this.discover.consumeModels();
-    }
-
-    public consumePilotModelFromGraph(): Promise<P[]> {
-        if (!this.pilot) return Promise.resolve([]);
-        return this.pilot.consumeModels();
-    }
-
-    public consumeListenerModelFromGraph(): Promise<L[]> {
-        if (!this.listener) return Promise.resolve([]);
-        return this.listener.consumeModels();
-    }
-
-
+	public consumeListenerModelFromGraph(): Promise<L[]> {
+		if (!this.listener) return Promise.resolve([]);
+		return this.listener.consumeModels();
+	}
 }
 
 spinalCore.register_models([SpinalOrganModel]);
 export default SpinalOrganModel;
 export { SpinalOrganModel };
-

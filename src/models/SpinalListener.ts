@@ -1,7 +1,7 @@
 import { Model, Pbr, spinalCore } from "spinal-core-connectorjs";
 import { SpinalContext, SpinalGraph, SpinalNode } from "spinal-env-viewer-graph-service";
-import { v4 as uuidv4 } from "uuid";
-import { loadPtr } from "../utils/functions";
+// import { v4 as uuidv4 } from "uuid";
+import { guid, loadPtr } from "../utils/functions";
 
 /**
  * Represents a listener model within the Spinal platform, responsible for monitoring and managing
@@ -35,7 +35,7 @@ class SpinalListener extends Model {
 		if (!graph || !context || !organ || !network || !bmsDevice || !profile) return;
 
 		this.add_attr({
-			id: uuidv4(),
+			id: guid("SpinalListener"),
 			monitored: true,
 			network: new Pbr(network),
 			organ: new Pbr(organ),

@@ -11,7 +11,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.SpinalPilot = void 0;
 const spinal_core_connectorjs_1 = require("spinal-core-connectorjs");
-const uuid_1 = require("uuid");
+// import { v4 as uuidv4 } from "uuid";
 const constants_1 = require("../utils/constants");
 const functions_1 = require("../utils/functions");
 /**
@@ -54,7 +54,7 @@ class SpinalPilot extends spinal_core_connectorjs_1.Model {
             return;
         const choicesSet = new Set(Object.keys(constants_1.PILOT_STATES));
         this.add_attr({
-            id: (0, uuid_1.v4)(),
+            id: (0, functions_1.guid)("SpinalPilot"),
             state: new spinal_core_connectorjs_1.Choice(0, Array.from(choicesSet)),
             creation: Date.now(),
             organ: new spinal_core_connectorjs_1.Pbr(organ),

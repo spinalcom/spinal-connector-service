@@ -118,14 +118,16 @@ class SpinalDiscover extends spinal_core_connectorjs_1.Model {
     }
     getTreeDiscovered(hubUrl) {
         return __awaiter(this, void 0, void 0, function* () {
-            const pathData = yield (0, functions_1.getPathData)(this.treeDiscovered.data.value, hubUrl);
+            // const pathData = await getPathData(this.treeDiscovered.data.value, hubUrl);
+            const pathData = yield (0, functions_1.getPathData)(this.treeDiscovered, hubUrl);
             const decompressed = yield gzip.ungzip(pathData);
             return JSON.parse(decompressed.toString());
         });
     }
     getTreeToCreate(hubUrl) {
         return __awaiter(this, void 0, void 0, function* () {
-            const pathData = yield (0, functions_1.getPathData)(this.treeToCreate.data.value, hubUrl);
+            // const pathData = await getPathData(this.treeToCreate.data.value, hubUrl);
+            const pathData = yield (0, functions_1.getPathData)(this.treeToCreate, hubUrl);
             const decompressed = yield gzip.ungzip(pathData);
             return JSON.parse(decompressed.toString());
         });

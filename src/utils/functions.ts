@@ -22,7 +22,7 @@
  * <http://resources.spinalcom.com/licenses.pdf>.
  */
 
-import { FileSystem } from "spinal-core-connectorjs_type";
+import { FileSystem, Path, Ptr } from "spinal-core-connectorjs_type";
 import axiosRetry from "axios-retry";
 import axios from "axios";
 // im;
@@ -52,13 +52,30 @@ export function s4(): string {
 		.substring(1);
 }
 
-export function getPathData(dynamicId: number, hubUrl: string = "") {
-	const path = `${hubUrl}/sceen/_?u=${dynamicId}`;
+export async function getPathData(path_ptr: Ptr<Path>, hubUrl: string = "") {
+	const pathModel = await loadPtr(path_ptr);
+	await waitPathModelReady(pathModel);
+
+	const path = `${hubUrl}/sceen/_?u=${pathModel._server_id}`;
 	const client = axios.create({ baseURL: hubUrl });
 	axiosRetry(client, { retries: 3, retryDelay: axiosRetry.exponentialDelay });
 	return client.get(path, { responseType: "arraybuffer" }).then((response) => {
 		// return Buffer.from(response.data);
 		return new Uint8Array(response.data);
+	});
+}
+
+function waitPathModelReady(pathModel: Path): Promise<boolean> {
+	return new Promise((resolve) => {
+		const waitPathModelReadyLoop = () => {
+			if (pathModel.remaining.get() > 0) {
+				setTimeout(waitPathModelReadyLoop, 500);
+				return;
+			}
+			resolve(true);
+		};
+
+		waitPathModelReadyLoop();
 	});
 }
 

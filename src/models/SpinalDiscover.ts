@@ -113,13 +113,15 @@ class SpinalDiscover extends Model {
 	}
 
 	public async getTreeDiscovered(hubUrl?: string) {
-		const pathData = await getPathData(this.treeDiscovered.data.value, hubUrl);
+		// const pathData = await getPathData(this.treeDiscovered.data.value, hubUrl);
+		const pathData = await getPathData(this.treeDiscovered, hubUrl);
 		const decompressed = await gzip.ungzip(pathData);
 		return JSON.parse(decompressed.toString());
 	}
 
 	public async getTreeToCreate(hubUrl?: string) {
-		const pathData = await getPathData(this.treeToCreate.data.value, hubUrl);
+		// const pathData = await getPathData(this.treeToCreate.data.value, hubUrl);
+		const pathData = await getPathData(this.treeToCreate, hubUrl);
 		const decompressed = await gzip.ungzip(pathData);
 		return JSON.parse(decompressed.toString());
 	}

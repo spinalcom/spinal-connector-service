@@ -22,6 +22,15 @@
  * with this file. If not, see
  * <http://resources.spinalcom.com/licenses.pdf>.
  */
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.generateUniqueId = exports.loadPtr = exports.getPathData = exports.s4 = exports.guid = exports.waitModelReady = void 0;
 const spinal_core_connectorjs_type_1 = require("spinal-core-connectorjs_type");
@@ -52,16 +61,32 @@ function s4() {
         .substring(1);
 }
 exports.s4 = s4;
-function getPathData(dynamicId, hubUrl = "") {
-    const path = `${hubUrl}/sceen/_?u=${dynamicId}`;
-    const client = axios_1.default.create({ baseURL: hubUrl });
-    (0, axios_retry_1.default)(client, { retries: 3, retryDelay: axios_retry_1.default.exponentialDelay });
-    return client.get(path, { responseType: "arraybuffer" }).then((response) => {
-        // return Buffer.from(response.data);
-        return new Uint8Array(response.data);
+function getPathData(path_ptr, hubUrl = "") {
+    return __awaiter(this, void 0, void 0, function* () {
+        const pathModel = yield loadPtr(path_ptr);
+        yield waitPathModelReady(pathModel);
+        const path = `${hubUrl}/sceen/_?u=${pathModel._server_id}`;
+        const client = axios_1.default.create({ baseURL: hubUrl });
+        (0, axios_retry_1.default)(client, { retries: 3, retryDelay: axios_retry_1.default.exponentialDelay });
+        return client.get(path, { responseType: "arraybuffer" }).then((response) => {
+            // return Buffer.from(response.data);
+            return new Uint8Array(response.data);
+        });
     });
 }
 exports.getPathData = getPathData;
+function waitPathModelReady(pathModel) {
+    return new Promise((resolve) => {
+        const waitPathModelReadyLoop = () => {
+            if (pathModel.remaining.get() > 0) {
+                setTimeout(waitPathModelReadyLoop, 500);
+                return;
+            }
+            resolve(true);
+        };
+        waitPathModelReadyLoop();
+    });
+}
 function loadPtr(ptr) {
     return new Promise((resolve, reject) => {
         try {

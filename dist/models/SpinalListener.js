@@ -52,7 +52,7 @@ class SpinalListener extends spinal_core_connectorjs_1.Model {
             context: new spinal_core_connectorjs_1.Pbr(context),
             graph: new spinal_core_connectorjs_1.Pbr(graph),
             bmsDevice: new spinal_core_connectorjs_1.Pbr(bmsDevice),
-            profile: new spinal_core_connectorjs_1.Pbr(profile)
+            profile: new spinal_core_connectorjs_1.Pbr(profile),
         });
     }
     getGraph() {
@@ -87,15 +87,15 @@ class SpinalListener extends spinal_core_connectorjs_1.Model {
         return Promise.all(promises).then(([organNode, deviceNode]) => __awaiter(this, void 0, void 0, function* () {
             const organModel = yield organNode.getElement(true);
             if (organModel) {
-                deviceNode.info.remove_attr('listener'); // remove reference to listener in device
+                deviceNode.info.rem_attr("listener"); // remove reference to listener in device
                 return organModel.removeListenerModelFromGraph(this); // remove listener from organ listener list
             }
         }));
     }
     addToDevice() {
         return this.getBmsDevice().then((device) => {
-            if (device.info.listeners)
-                device.info.rem_attr('listener');
+            if (device.info.listener)
+                device.info.rem_attr("listener");
             device.info.add_attr({ listener: new spinal_core_connectorjs_1.Pbr(this) });
         });
     }

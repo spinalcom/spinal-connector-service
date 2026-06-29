@@ -6,7 +6,6 @@ import { loadPtr } from "../utils/functions";
 import ModelsInfo from "./ModelsInfo";
 import SpinalOrganModel from "./SpinalOrganModel";
 
-
 /**
  * Represents a pilot model that manages the state and association of a pilot process
  * with a specific organ node and a set of requests in the Spinal platform.
@@ -41,108 +40,107 @@ import SpinalOrganModel from "./SpinalOrganModel";
  * @method removeFromNode - Removes the pilot from its associated node.
  */
 class SpinalPilot<RequestType> extends Model {
-    constructor(organ?: SpinalNode, requests?: RequestType | RequestType[]) {
-        super();
-        if (!organ || !requests) return;
+	constructor(organ?: SpinalNode, requests?: RequestType | RequestType[]) {
+		super();
+		if (!organ || !requests) return;
 
-        const choicesSet = new Set(Object.keys(PILOT_STATES));
+		const choicesSet = new Set(Object.keys(PILOT_STATES));
 
-        this.add_attr({
-            id: uuidv4(),
-            state: new Choice(0, Array.from(choicesSet)),
-            creation: Date.now(),
-            organ: new Pbr(organ),
-            requests: Array.isArray(requests) ? requests : [requests],
-        })
-    }
+		this.add_attr({
+			id: uuidv4(),
+			state: new Choice(0, Array.from(choicesSet)),
+			creation: Date.now(),
+			organ: new Pbr(organ),
+			requests: Array.isArray(requests) ? requests : [requests],
+		});
+	}
 
-    public changeState(newState: keyof typeof PILOT_STATES): void {
-        if (!PILOT_STATES[newState]) throw new Error(`${newState} is not a valid state`);
+	public changeState(newState: keyof typeof PILOT_STATES): void {
+		if (!PILOT_STATES[newState]) throw new Error(`${newState} is not a valid state`);
 
-        const choicesSet = new Set(Object.keys(PILOT_STATES));
-        this.state.set(Array.from(choicesSet).indexOf(newState));
-    }
+		const choicesSet = new Set(Object.keys(PILOT_STATES));
+		this.state.set(Array.from(choicesSet).indexOf(newState));
+	}
 
-    public setInitMode(): void {
-        this.changeState(PILOT_STATES.init);
-    }
+	public setInitMode(): void {
+		this.changeState(PILOT_STATES.init);
+	}
 
-    public setProcessMode(): void {
-        this.changeState(PILOT_STATES.processing);
-    }
+	public setProcessMode(): void {
+		this.changeState(PILOT_STATES.processing);
+	}
 
-    public setSuccessMode(): void {
-        this.changeState(PILOT_STATES.success);
-    }
+	public setSuccessMode(): void {
+		this.changeState(PILOT_STATES.success);
+	}
 
-    public setErrorMode(): void {
-        this.changeState(PILOT_STATES.error);
-    }
+	public setErrorMode(): void {
+		this.changeState(PILOT_STATES.error);
+	}
 
-    public getOrgan(): Promise<SpinalNode> {
-        return loadPtr(this.organ);
-    }
+	public getOrgan(): Promise<SpinalNode> {
+		return loadPtr(this.organ);
+	}
 
-    public addToGraph(): Promise<number> {
-        return this.getOrgan().then(async (organNode: SpinalNode) => {
-            const organModel: SpinalOrganModel = await organNode.getElement(true);
-            if (organModel) {
-                return organModel.addPilotModelToGraph(this);
-            }
-            return -1;
-        })
-    }
+	public addToGraph(): Promise<number> {
+		return this.getOrgan().then(async (organNode: SpinalNode) => {
+			const organModel: SpinalOrganModel = await organNode.getElement(true);
+			if (organModel) {
+				return organModel.addPilotModelToGraph(this);
+			}
+			return -1;
+		});
+	}
 
-    public removeFromGraph(): Promise<boolean> {
-        return this.getOrgan().then(async (organNode: SpinalNode) => {
-            const organModel: SpinalOrganModel = await organNode.getElement(true);
-            if (organModel) {
-                return organModel.removePilotModelFromGraph(this);
-            }
-            return false;
-        })
-    }
+	public removeFromGraph(): Promise<boolean> {
+		return this.getOrgan().then(async (organNode: SpinalNode) => {
+			const organModel: SpinalOrganModel = await organNode.getElement(true);
+			if (organModel) {
+				return organModel.removePilotModelFromGraph(this);
+			}
+			return false;
+		});
+	}
 
-    public async addToNode(endpoint: SpinalNode): Promise<number> {
-        try {
-            this.add_attr({ node: endpoint });
+	public async addToNode(endpoint: SpinalNode): Promise<number> {
+		try {
+			this.add_attr({ node: endpoint });
 
-            if (!endpoint?.info?.pilot) {
-                endpoint.info.add_attr({ pilot: new Ptr(new Lst([this])) });
-                return 1;
-            }
+			if (!endpoint?.info?.pilot) {
+				endpoint.info.add_attr({ pilot: new Ptr(new Lst([this])) });
+				return 1;
+			}
 
-            const pilotageLst = (await loadPtr(endpoint.info.pilot)) as Lst<any>;
-            pilotageLst.push(this);
+			const pilotageLst = (await loadPtr(endpoint.info.pilot)) as Lst<any>;
+			pilotageLst.push(this);
 
-            return pilotageLst.length;
-        } catch (error) {
-            this.rem_attr("node");
-            return -1;
-        }
+			return pilotageLst.length;
+		} catch (error) {
+			this.rem_attr("node");
+			return -1;
+		}
+	}
 
-    }
+	public removeFromNode(): Promise<boolean> {
+		if (!this.node?.info?.pilot) return Promise.resolve(false);
 
-    public removeFromNode(): Promise<boolean> {
-        if (!this.node?.info?.pilot) return Promise.resolve(false);
+		return loadPtr(this.node.info.pilot)
+			.then((lst: Lst<any>) => {
+				for (let i = 0; i < lst.length; i++) {
+					const element = lst[i];
+					if (element.id.get() === this.id.get()) {
+						lst.remove(element);
+						return true;
+					}
+				}
 
-        return loadPtr(this.node.info.pilot).then((lst: Lst<any>) => {
-            for (let i = 0; i < lst.length; i++) {
-                const element = lst[i];
-                if (element.id.get() === this.id.get()) {
-                    lst.remove(element);
-                    return true;
-                }
-            }
-
-            return false;
-        }).catch((err) => {
-            return false;
-        });
-    }
-
+				return false;
+			})
+			.catch((err) => {
+				return false;
+			});
+	}
 }
-
 
 spinalCore.register_models([SpinalPilot]);
 export { SpinalPilot };

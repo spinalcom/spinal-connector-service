@@ -1,38 +1,40 @@
 {
-	"name": "spinal-connector-service",
-	"version": "2.3.1",
-	"description": "",
-	"main": "dist/index.js",
-	"types": "./declarations/index.d.ts",
-	"scripts": {
-		"build": "rm -fr dist && tsc",
-		"dev": "rm -fr dist && tsc --watch & nodemon dist"
-	},
-	"keywords": [],
-	"author": "",
-	"license": "ISC",
-	"dependencies": {
-		"axios": "^1.13.5",
-		"axios-retry": "^4.5.0",
-		"dotenv": "^16.0.1",
-		"json5": "^2.2.0",
-		"lodash": "^4.17.21",
-		"node-gzip": "^1.1.2",
-		"Q": "^1.0.0"
-	},
-	"devDependencies": {
-		"@types/node": "^18.7.6",
-		"babel-cli": "^6.26.0",
-		"babel-preset-es2015": "^6.24.1",
-		"babel-preset-stage-2": "^6.24.1",
-		"babel-register": "^6.26.0",
-		"rimraf": "^5.0.5",
-		"tslint": "^6.1.3",
-		"typescript": "^4.1.3"
-	},
-	"spinalDependencies": {
-		"spinal-core-connectorjs_type": "spinal-core-connectorjs_type",
-		"spinal-lib-forgefile": "spinal-lib-forgefile",
-		"spinal-model-graph": "spinal-model-graph"
-	}
+  "name": "spinal-connector-service",
+  "version": "2.3.1",
+  "description": "",
+  "main": "dist/index.js",
+  "types": "./declarations/index.d.ts",
+  "scripts": {
+    "build": "rm -fr dist && tsc",
+    "dev": "rm -fr dist && tsc --watch & nodemon dist"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "axios": "^1.13.5",
+    "axios-retry": "^4.5.0",
+    "dotenv": "^16.0.1",
+    "json5": "^2.2.0",
+    "lodash": "^4.17.21",
+    "node-gzip": "^1.1.2",
+    "Q": "^1.0.0",
+    "uuid": "^14.0.1"
+  },
+  "devDependencies": {
+    "@types/node": "^18.7.6",
+    "babel-cli": "^6.26.0",
+    "babel-preset-es2015": "^6.24.1",
+    "babel-preset-stage-2": "^6.24.1",
+    "babel-register": "^6.26.0",
+    "rimraf": "^5.0.5",
+    "tslint": "^6.1.3",
+    "typescript": "^4.1.3"
+  },
+  "spinalDependencies": {
+    "spinal-core-connectorjs_type": "spinal-core-connectorjs_type",
+    "spinal-lib-forgefile": "spinal-lib-forgefile",
+    "spinal-model-graph": "spinal-model-graph",
+    "spinal-env-viewer-graph-service": "Spinal-Graph-Service"
+  }
 }

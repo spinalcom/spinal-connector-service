@@ -123,7 +123,8 @@ class SpinalPilot extends spinal_core_connectorjs_1.Model {
         var _a, _b;
         if (!((_b = (_a = this.node) === null || _a === void 0 ? void 0 : _a.info) === null || _b === void 0 ? void 0 : _b.pilot))
             return Promise.resolve(false);
-        return (0, functions_1.loadPtr)(this.node.info.pilot).then((lst) => {
+        return (0, functions_1.loadPtr)(this.node.info.pilot)
+            .then((lst) => {
             for (let i = 0; i < lst.length; i++) {
                 const element = lst[i];
                 if (element.id.get() === this.id.get()) {
@@ -132,7 +133,8 @@ class SpinalPilot extends spinal_core_connectorjs_1.Model {
                 }
             }
             return false;
-        }).catch((err) => {
+        })
+            .catch((err) => {
             return false;
         });
     }

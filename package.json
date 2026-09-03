@@ -35,6 +35,7 @@
     "spinal-core-connectorjs_type": "spinal-core-connectorjs_type",
     "spinal-lib-forgefile": "spinal-lib-forgefile",
     "spinal-model-graph": "spinal-model-graph",
-    "spinal-env-viewer-graph-service": "Spinal-Graph-Service"
+    "spinal-env-viewer-graph-service": "Spinal-Graph-Service",
+    "spinal-model-bmsnetwork": "spinal-model-bmsnetwork"
   }
 }

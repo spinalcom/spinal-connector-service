@@ -9,10 +9,11 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.createOrganConfigFile = exports.getOrganConfig = void 0;
+exports._compareDeviceListeners = exports.getDeviceListener = exports.findDevices = exports.getOrganDeviceNode = exports.createOrganConfigFile = exports.getOrganConfig = void 0;
 const models_1 = require("../models");
 const constants_1 = require("./constants");
 const spinal_core_connectorjs_1 = require("spinal-core-connectorjs");
+const spinal_model_bmsnetwork_1 = require("spinal-model-bmsnetwork");
 // import * as pm2 from "pm2";
 function getOrganConfig(spinalConnection, filePath) {
     return new Promise((resolve) => {
@@ -52,6 +53,71 @@ function createOrganConfigFile(spinalConnection, organInfo) {
     });
 }
 exports.createOrganConfigFile = createOrganConfigFile;
+function getOrganDeviceNode(organ) {
+    return __awaiter(this, void 0, void 0, function* () {
+        const nodeRefs = yield organ.getAllReferences();
+        const promises = Object.keys(nodeRefs).map((contextId) => __awaiter(this, void 0, void 0, function* () {
+            const node = nodeRefs[contextId];
+            const devices = yield findDevices(node);
+            return [contextId, devices];
+        }));
+        const results = yield Promise.all(promises);
+        return Object.fromEntries(results);
+    });
+}
+exports.getOrganDeviceNode = getOrganDeviceNode;
+function findDevices(parentNode) {
+    return __awaiter(this, void 0, void 0, function* () {
+        const relations = [spinal_model_bmsnetwork_1.SpinalBmsNetwork.relationName, spinal_model_bmsnetwork_1.SpinalBmsDevice.relationName];
+        const queue = [parentNode];
+        const devices = [];
+        while (queue.length > 0) {
+            const node = queue.shift();
+            const children = yield node.getChildren(relations);
+            for (const child of children) {
+                if (child.getType().get() === spinal_model_bmsnetwork_1.SpinalBmsDevice.nodeTypeName) {
+                    devices.push(child);
+                    continue;
+                }
+                queue.push(child);
+            }
+        }
+        return devices;
+    });
+}
+exports.findDevices = findDevices;
+function getDeviceListener(devices) {
+    return __awaiter(this, void 0, void 0, function* () {
+        const obj = {};
+        const promises = devices.map((device) => __awaiter(this, void 0, void 0, function* () {
+            var _a;
+            const listener = yield ((_a = device.info.listener) === null || _a === void 0 ? void 0 : _a.load());
+            return listener;
+        }));
+        return Promise.all(promises).then((listeners) => listeners.filter((listener) => listener !== undefined));
+    });
+}
+exports.getDeviceListener = getDeviceListener;
+function _compareDeviceListeners(listenerModels, deviceListeners) {
+    return __awaiter(this, void 0, void 0, function* () {
+        if (listenerModels.length !== deviceListeners.length) {
+            return { valid: false, message: "Listener models count does not match the number of device listeners" };
+        }
+        const listenersObj = listenerModels.reduce((acc, listener) => {
+            const key = listener._server_id;
+            acc[key] = listener;
+            return acc;
+        }, {});
+        for (const listener of deviceListeners) {
+            const key = listener._server_id;
+            if (!listenersObj[key]) {
+                return { valid: false, message: `Device listener with server ID ${key} does not have a corresponding listener model` };
+            }
+        }
+        return { valid: true };
+    });
+}
+exports._compareDeviceListeners = _compareDeviceListeners;
 // export function getPm2Instance(name: string): Promise<pm2.ProcessDescription | undefined> {
 //     return new Promise((resolve, reject) => {
 //         pm2.connect((err) => {
@@ -68,7 +134,7 @@ exports.createOrganConfigFile = createOrganConfigFile;
 // }
 function loadConfigModel(element) {
     return new Promise((resolve) => {
-        element.load(organ => resolve(organ));
+        element.load((organ) => resolve(organ));
     });
 }
 function getFileInfoByPath(filePath) {

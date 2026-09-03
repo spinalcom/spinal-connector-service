@@ -51,9 +51,18 @@ declare class SpinalOrganModel<D extends Model = any, P extends Model = any, L e
     linkOrganToContext(context: SpinalContext): Promise<boolean>;
     unlinkOrganFromContext(context: SpinalContext): Promise<boolean>;
     isReferencedInContext(contextId: string): boolean;
+    getAllContextIds(): string[];
+    getReferenceByContext(contextId: string): Promise<SpinalNode | null>;
     addReference(contextId: string, spinalNode: SpinalNode): SpinalNode;
+    getAllReferences(): Promise<{
+        [contextId: string]: SpinalNode;
+    }>;
     removeReference(contextId: string): void;
     initializeModelsList(): void;
+    checkOrganDataValidity(): Promise<{
+        valid: boolean;
+        message?: string;
+    }>;
     addDiscoverModelToGraph(discoverModel: D): Promise<number>;
     addPilotModelToGraph(pilotModel: P): Promise<number>;
     addListenerModelToGraph(listenerModel: L): Promise<number>;
@@ -66,6 +75,8 @@ declare class SpinalOrganModel<D extends Model = any, P extends Model = any, L e
     consumeDiscoverModelFromGraph(): Promise<D[]>;
     consumePilotModelFromGraph(): Promise<P[]>;
     consumeListenerModelFromGraph(): Promise<L[]>;
+    private _checkModelValidity;
+    private _checkListenerValidity;
 }
 export default SpinalOrganModel;
 export { SpinalOrganModel };

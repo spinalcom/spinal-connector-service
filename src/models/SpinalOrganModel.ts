@@ -4,6 +4,7 @@ import { CONTEXT_TO_ORGAN_RELATION, DEFAULT_ORGAN_TYPE } from "../utils/constant
 import { SpinalNode, SPINAL_RELATION_PTR_LST_TYPE, SpinalContext } from "spinal-model-graph";
 import ModelsInfo from "./ModelsInfo";
 import { guid, loadPtr } from "../utils/functions";
+import { _compareDeviceListeners, getDeviceListener, getOrganDeviceNode } from "../utils/lifecycle";
 
 /**
  * Represents an Organ model in the Spinal framework, managing references and collections of models
@@ -96,12 +97,34 @@ class SpinalOrganModel<D extends Model = any, P extends Model = any, L extends M
 		return typeof this.references[contextId] !== "undefined";
 	}
 
+	public getAllContextIds(): string[] {
+		return this.references._attribute_names || [];
+	}
+
+	public async getReferenceByContext(contextId: string): Promise<SpinalNode | null> {
+		if (!this.isReferencedInContext(contextId)) return null;
+		const node = (await loadPtr(this.references[contextId])) as SpinalNode;
+		return node || null;
+	}
+
 	public addReference(contextId: string, spinalNode: SpinalNode): SpinalNode {
 		const refFound = this.references[contextId];
 		if (refFound) this.references.rem_attr(contextId);
 
 		this.references.add_attr({ [contextId]: new Ptr(spinalNode) });
 		return spinalNode;
+	}
+
+	public async getAllReferences(): Promise<{ [contextId: string]: SpinalNode }> {
+		const contextIds = this.getAllContextIds();
+
+		const promises = contextIds.map(async (contextId) => {
+			const node = await this.getReferenceByContext(contextId);
+			return [contextId, node] as [string, SpinalNode];
+		});
+
+		const entries = await Promise.all(promises);
+		return Object.fromEntries(entries);
 	}
 
 	public removeReference(contextId: string): void {
@@ -112,6 +135,17 @@ class SpinalOrganModel<D extends Model = any, P extends Model = any, L extends M
 		if (!this.discover) this.add_attr({ discover: new ModelsInfo<D>() });
 		if (!this.pilot) this.add_attr({ pilot: new ModelsInfo<P>() });
 		if (!this.listener) this.add_attr({ listener: new ModelsInfo<L>() });
+	}
+
+	public async checkOrganDataValidity(): Promise<{ valid: boolean; message?: string }> {
+		try {
+			this._checkModelValidity();
+			await this._checkListenerValidity();
+		} catch (error: any) {
+			return { valid: false, message: error.message };
+		}
+
+		return { valid: true };
 	}
 
 	////////////// ADD MODELS //////////////
@@ -180,6 +214,25 @@ class SpinalOrganModel<D extends Model = any, P extends Model = any, L extends M
 	public consumeListenerModelFromGraph(): Promise<L[]> {
 		if (!this.listener) return Promise.resolve([]);
 		return this.listener.consumeModels();
+	}
+
+	private _checkModelValidity(): boolean {
+		if (!(this.discover instanceof ModelsInfo)) throw `"Discover" property on organ Model is not valid`;
+		if (!(this.listener instanceof ModelsInfo)) throw `"Listener" property on organ Model is not valid`;
+		if (!(this.pilot instanceof ModelsInfo)) throw `"Pilot" property on organ Model is not valid`;
+
+		return true;
+	}
+
+	private async _checkListenerValidity(): Promise<boolean> {
+		const listenerModels = await this.getListenerModelFromGraph();
+		const devices = await getOrganDeviceNode(this);
+		const deviceListeners = await getDeviceListener(Object.values(devices).flat());
+
+		const comparisonResult = await _compareDeviceListeners(Array.from(listenerModels || []), deviceListeners);
+		if (!comparisonResult.valid) throw comparisonResult.message;
+
+		return true;
 	}
 }
 

@@ -16,6 +16,7 @@ const constants_1 = require("../utils/constants");
 const spinal_model_graph_1 = require("spinal-model-graph");
 const ModelsInfo_1 = require("./ModelsInfo");
 const functions_1 = require("../utils/functions");
+const lifecycle_1 = require("../utils/lifecycle");
 /**
  * Represents an Organ model in the Spinal framework, managing references and collections of models
  * for discovery, pilot, and listener functionalities. This class extends the base `Model` class and
@@ -104,12 +105,34 @@ class SpinalOrganModel extends spinal_core_connectorjs_1.Model {
     isReferencedInContext(contextId) {
         return typeof this.references[contextId] !== "undefined";
     }
+    getAllContextIds() {
+        return this.references._attribute_names || [];
+    }
+    getReferenceByContext(contextId) {
+        return __awaiter(this, void 0, void 0, function* () {
+            if (!this.isReferencedInContext(contextId))
+                return null;
+            const node = (yield (0, functions_1.loadPtr)(this.references[contextId]));
+            return node || null;
+        });
+    }
     addReference(contextId, spinalNode) {
         const refFound = this.references[contextId];
         if (refFound)
             this.references.rem_attr(contextId);
         this.references.add_attr({ [contextId]: new spinal_core_connectorjs_1.Ptr(spinalNode) });
         return spinalNode;
+    }
+    getAllReferences() {
+        return __awaiter(this, void 0, void 0, function* () {
+            const contextIds = this.getAllContextIds();
+            const promises = contextIds.map((contextId) => __awaiter(this, void 0, void 0, function* () {
+                const node = yield this.getReferenceByContext(contextId);
+                return [contextId, node];
+            }));
+            const entries = yield Promise.all(promises);
+            return Object.fromEntries(entries);
+        });
     }
     removeReference(contextId) {
         if (this.isReferencedInContext(contextId))
@@ -122,6 +145,18 @@ class SpinalOrganModel extends spinal_core_connectorjs_1.Model {
             this.add_attr({ pilot: new ModelsInfo_1.default() });
         if (!this.listener)
             this.add_attr({ listener: new ModelsInfo_1.default() });
+    }
+    checkOrganDataValidity() {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                this._checkModelValidity();
+                yield this._checkListenerValidity();
+            }
+            catch (error) {
+                return { valid: false, message: error.message };
+            }
+            return { valid: true };
+        });
     }
     ////////////// ADD MODELS //////////////
     addDiscoverModelToGraph(discoverModel) {
@@ -186,6 +221,26 @@ class SpinalOrganModel extends spinal_core_connectorjs_1.Model {
         if (!this.listener)
             return Promise.resolve([]);
         return this.listener.consumeModels();
+    }
+    _checkModelValidity() {
+        if (!(this.discover instanceof ModelsInfo_1.default))
+            throw `"Discover" property on organ Model is not valid`;
+        if (!(this.listener instanceof ModelsInfo_1.default))
+            throw `"Listener" property on organ Model is not valid`;
+        if (!(this.pilot instanceof ModelsInfo_1.default))
+            throw `"Pilot" property on organ Model is not valid`;
+        return true;
+    }
+    _checkListenerValidity() {
+        return __awaiter(this, void 0, void 0, function* () {
+            const listenerModels = yield this.getListenerModelFromGraph();
+            const devices = yield (0, lifecycle_1.getOrganDeviceNode)(this);
+            const deviceListeners = yield (0, lifecycle_1.getDeviceListener)(Object.values(devices).flat());
+            const comparisonResult = yield (0, lifecycle_1._compareDeviceListeners)(Array.from(listenerModels || []), deviceListeners);
+            if (!comparisonResult.valid)
+                throw comparisonResult.message;
+            return true;
+        });
     }
 }
 exports.SpinalOrganModel = SpinalOrganModel;
